@@ -7,14 +7,13 @@ import Dashboard from './dashboard/Dashboard';
 import Chatbot from './chatbot/Chatbot';
 import Login from './auth/Login';
 
-const Home = () => {
+const App = () => {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    /* return (
-        isLoggedIn ? <Dashboard setIsLoggedIn={setIsLoggedIn} /> : <Login setIsLoggedIn={setIsLoggedIn} />
-    ) */
-    return <Chatbot/>
+    return (
+        !isLoggedIn ? <Dashboard setIsLoggedIn={setIsLoggedIn} /> : <Login setIsLoggedIn={setIsLoggedIn} />
+    )
 }
 
 
@@ -50,4 +49,4 @@ const Home = () => {
 
 </SafeAreaView> */}
 
-export default Home;
+export default App;

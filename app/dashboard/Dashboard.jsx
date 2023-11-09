@@ -1,51 +1,34 @@
-import { SafeAreaView, ScrollView, View, Text, StyleSheet } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { ScreenHeaderBtn } from '../../components';
-import { COLORS, FONT, icons, images, SIZES } from '../../constants';
+import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import { SIZES } from '../../constants';
 import Search from '../../components/home/search/Search';
-import Board from '../../components/home/board/Board';
-import TopDishes from '../../components/home/top-dishes/TopDishes';
-import Inventory from '../../components/home/inventory/Inventory';
-import SaleItems from '../../components/home/sale-items/SaleItems';
+import Restaurants from '../../components/home/restaurants/Restaurants.jsx';
+import ForSale from '../../components/home/for-sale/ForSale.jsx';
+import Chatbot from '../../components/home/chatbot/ChatBot.jsx';
 import Navigation from '../../components/common/navigation/Navigation';
-import { FontAwesome } from '@expo/vector-icons';
+import Header from '../../components/common/header/Header.jsx';
 
-const Dashboard = ({ setIsLoggedIn }) => {
-
-    const router = useRouter();
+const Dashboard = () => {
 
     const data = Array.from({ length: 5 });
     
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
 
-            <Stack.Screen options={{
-                headerStyle: { backgroundColor: 'white' },
-                headerShadowVisible: false,
-                headerLeft: () => <ScreenHeaderBtn component={<FontAwesome name="bars" style={{ fontSize: 23 }} />} />,
-                headerRight: () => <ScreenHeaderBtn component={<FontAwesome name="bell-o" style={{ fontSize: 23 }} />} />,
-                headerTitle: () => (
-                    <View style={styles.headerTitleWrapper}>
-                        <Text style={styles.headerText}>Home</Text>
-                    </View>
-                )
-            }}/>
+            <Header title={ 'Home' }/>
 
             <ScrollView style={styles.body}>
 
                 <Search/>
-
-                <Board header={'Inventory Lacking'} data={['Carrots needs Refill', 'Potatoes needs Refill', 'Rib Eye needs Refill']} />
             
-                <TopDishes/>
+                <Restaurants/>
 
-                <Inventory/>
+                <ForSale/>
 
-                <SaleItems/>
+                <Chatbot/>
 
             </ScrollView>
 
-            <Navigation logout={setIsLoggedIn}/>
+            <Navigation currentRoute={ 'Home' } />
             
         </SafeAreaView>
     )
@@ -53,30 +36,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: SIZES.xLarge,
+        flex: 1,
+        backgroundColor: '#FFF',
     },
     body: {
         padding: SIZES.medium,
-        backgroundColor: '#FFF',
         height: 100,
         marginBottom: 60,
         paddingBottom: 5
-    },
-    headerTitleWrapper: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    headerText: {
-        fontFamily: FONT.medium,
-        fontSize: 40,
-        paddingRight: '22%'
     }
 });
 

@@ -4,36 +4,28 @@ import { COLORS, FONT } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-const Navigation = ({ logout }) => {
+const Navigation = ({ currentRoute, logout }) => {
 
     const router = useRouter();
 
-    const [activeNavigation, setActiveNavigation] = useState('Chat-bot');
+    const [activeNavigation, setActiveNavigation] = useState(currentRoute);
 
     const NAVIGATIONS = [{
         icon: 'home',
         name: 'Home',
-        navigate: () => router.push('/dashboard')
-    }, {
-        icon: 'wechat',
-        name: 'Chat-bot',
-        navigate: () => router.push('/chatbot')
-    }, {
-        icon: 'list-alt',
-        name: 'Menu',
-        navigate: () => router.push('../landingpage')
-    }, {
-        icon: 'home',
-        name: 'Inventory',
-        navigate: () => router.push('/app/auth')
+        navigate: () => router.replace('/dashboard/Dashboard')
     }, {
         icon: 'shopping-basket',
         name: 'Market',
-        navigate: () => router.push('./register')
+        navigate: () => router.replace('/market/Market')
+    }, {
+        icon: 'wechat',
+        name: 'Chat-bot',
+        navigate: () => router.replace('/chatbot/Chatbot')
     }, {
         icon: 'user-circle-o',
         name: 'Profile',
-        navigate: () => logout(false)
+        navigate: () => router.replace('/profile/Profile')
     }];
 
     function handlePress(selectedNavigation) {

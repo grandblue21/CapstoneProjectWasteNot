@@ -1,11 +1,10 @@
 import { useState, useRef } from 'react';
 import { SafeAreaView, ScrollView, View, Text, StyleSheet, Keyboard, TouchableOpacity, Image, TextInput, ToastAndroid } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { ScreenHeaderBtn } from '../../components';
 import { COLORS, FONT, SIZES } from '../../constants';
 import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
 import { FontAwesome } from '@expo/vector-icons';
+import Header from '../../components/common/header/Header';
 import axios from 'axios';
 
 const Chatbot = () => {
@@ -34,10 +33,10 @@ const Chatbot = () => {
         };
         
         // Include to conversation
-        setConversation([...conversation, {
+        setConversation((prev) => ([...prev, {
             isBot: false,
             message: inputQuery
-        }]);
+        }]));
 
         // Empty input query
         setInputQuery('');
@@ -51,19 +50,19 @@ const Chatbot = () => {
             const response = await axios.request(options);
 
             // Include to conversation
-            setConversation([...conversation, {
+            setConversation((prev) => ([...prev, {
                 isBot: true,
                 message: response.data.choices[0].message.content
-            }]);                 
+            }]));
+
+            // Scroll to bottom
+            scrollViewRef.current.scrollToEnd({ animated: true });
         }
         catch (error) {
              // Show notif
              ToastAndroid.showWithGravity('WasteNot AI cannot reply. Please try again later.', ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
-
-    // Router
-    const router = useRouter();
 
     // Reference for Scroll View Component
     const scrollViewRef = useRef(null);
@@ -87,17 +86,7 @@ const Chatbot = () => {
     return (
         <SafeAreaView style={styles.container}>
 
-            <Stack.Screen options={{
-                headerStyle: { backgroundColor: 'white' },
-                headerShadowVisible: false,
-                headerLeft: () => <ScreenHeaderBtn component={<FontAwesome name="bars" style={{ fontSize: 23 }} />} />,
-                headerRight: () => <ScreenHeaderBtn component={<FontAwesome name="bell-o" style={{ fontSize: 23 }} />} />,
-                headerTitle: () => (
-                    <View style={styles.headerTitleWrapper}>
-                        <Text style={styles.headerText}>Chatbot</Text>
-                    </View>
-                )
-            }}/>
+            <Header title={ 'Chatbot' }/>
 
             <View style={styles.body}>
                 <Search/>
@@ -124,7 +113,7 @@ const Chatbot = () => {
                 </View>
             </View>
 
-            <Navigation/>
+            <Navigation currentRoute={ 'Chat-bot' } />
             
         </SafeAreaView>
     )
@@ -142,22 +131,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         marginBottom: 75,
         paddingBottom: 5
-    },
-    headerTitleWrapper: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    headerText: {
-        fontFamily: FONT.medium,
-        fontSize: 40,
-        paddingRight: '22%'
     },
     convoContainer: {
         flexGrow: 1,
