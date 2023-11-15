@@ -1,13 +1,16 @@
-import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { SIZES } from '../../constants';
 import Search from '../../components/home/search/Search';
-import Restaurants from '../../components/home/restaurants/Restaurants.jsx';
-import ForSale from '../../components/home/for-sale/ForSale.jsx';
-import Chatbot from '../../components/home/chatbot/ChatBot.jsx';
+import Restaurants from '../../components/home/restaurants/Restaurants';
+import ForSale from '../../components/home/for-sale/ForSale';
+import Chatbot from '../../components/home/chatbot/ChatBot';
 import Navigation from '../../components/common/navigation/Navigation';
-import Header from '../../components/common/header/Header.jsx';
+import Header from '../../components/common/header/Header';
+import { useRouter } from 'expo-router';
 
-const Dashboard = () => {
+const Dashboard = ({ setLoggedIn }) => {
+
+    const router = useRouter();
 
     const data = Array.from({ length: 5 });
     
@@ -25,6 +28,13 @@ const Dashboard = () => {
                 <ForSale/>
 
                 <Chatbot/>
+            
+                <TouchableOpacity onPress={ () => {
+
+                    router.replace('/auth/Login');
+
+                    setLoggedIn(false);
+                } } style={{ marginBottom: 60, backgroundColor: 'red', alignItems: 'center', padding: 5, borderRadius: 5}}><Text style={{ color: '#FFF'}}>Logout</Text></TouchableOpacity>
 
             </ScrollView>
 

@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence, getAuth } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore } from 'firebase/firestore'; 
 
 // Initialize Firebase
@@ -18,6 +19,16 @@ class FirebaseApp {
     
     constructor() {
         this._instance = initializeApp(firebaseConfig);
+        
+        /* this._authInitialized = false;
+
+        // Initialize Firebase Auth with AsyncStorage for persistence if not already initialized
+        if (!this._authInitialized) {
+            initializeAuth(this._instance, {
+                persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+            });
+            this._authInitialized = true;
+        } */
     }
 
     getInstance = () =>  {
@@ -25,7 +36,7 @@ class FirebaseApp {
     }
 
     auth = () => {
-        return getAuth();
+        return getAuth(this._instance);
     }
 
     firestore = () => {

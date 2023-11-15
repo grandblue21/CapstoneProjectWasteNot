@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Keyboard, SafeAreaView, Text, View, StyleSheet, TouchableOpacity, ToastAndroid } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 import InputIcon from '../../components/auth/InputIcon';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore'; 
 import Checkbox from 'expo-checkbox';
 import { FontAwesome } from '@expo/vector-icons';
+import Header from '../../components/common/header/Header';
 
 const Register = ({ navigation }) => {
 
@@ -76,8 +77,10 @@ const Register = ({ navigation }) => {
     return (  
         <SafeAreaView style={styles.container}>
 
+            <Stack.Screen options={{ headerShown: false }}/>
+
             {/* Back */}
-            <TouchableOpacity style={styles.back} onPress={() => router.back()}>
+            <TouchableOpacity style={styles.back} onPress={ () => router.replace('/auth/Login') }>
                 <FontAwesome name={'chevron-left'} style={styles.backIcon}/>
             </TouchableOpacity>
 
@@ -114,7 +117,7 @@ const Register = ({ navigation }) => {
                 <View style={{flexDirection: 'row'}}>
                     {/* Don't have any account yet */}
                     <Text style={{fontSize: 12, marginRight: 5}}>Already have an account?</Text>
-                    <Text style={{fontSize: 12, textDecorationLine: 'underline', color: '#389F4F'}} onPress={() => router.push('/auth/Login')}>Sign In</Text>
+                    <Text style={{fontSize: 12, textDecorationLine: 'underline', color: '#389F4F'}} onPress={ () => router.replace('/auth/Login') }>Sign In</Text>
                 </View>
             </View>
 
@@ -131,11 +134,13 @@ const styles = StyleSheet.create({
     back: {
         height: 33,
         width: 33,
-        alignSelf: 'flex-start',
+        position: 'absolute',
+        left: 0,
+        top: 0,
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft: 10,
-        marginTop: 10,
+        marginLeft: 30,
+        marginTop: 30,
         borderWidth: 3,
         borderColor: '#097C31',
         borderRadius: 20
@@ -155,7 +160,7 @@ const styles = StyleSheet.create({
     },
     headerWrapper: {
         marginLeft: 'auto'
-    },  
+    },
     headerImage: {
         height: 122,
         width: 122

@@ -5,6 +5,7 @@ import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
 import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useRouter } from 'expo-router';
 
 const Market = () => {
 
@@ -26,6 +27,8 @@ const Market = () => {
             name: 'Quality Food'
         }
     ];
+
+    const router = useRouter();
     
     return (
         <SafeAreaView style={ styles.container }>
@@ -42,7 +45,7 @@ const Market = () => {
 
                     {
                         restaurants.map((restaurant, index) => (
-                            <TouchableOpacity key={ index } style={ styles.restaurant }>
+                            <TouchableOpacity key={ index } style={ styles.restaurant } onPress={ () => router.replace('/restaurant/Restaurant') }>
 
                                 <Image src={ restaurant.image } style={ styles.restaurantImage }/>
 

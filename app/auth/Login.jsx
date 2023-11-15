@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Keyboard, SafeAreaView, Image, Text, View, StyleSheet, TouchableOpacity, ToastAndroid } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 import InputIcon from '../../components/auth/InputIcon';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { signInWithEmailAndPassword  } from 'firebase/auth';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 
-const Login = ({ setIsLoggedIn }) => {
+const Login = ({ login }) => {
 
     const router = useRouter();
 
@@ -48,7 +48,7 @@ const Login = ({ setIsLoggedIn }) => {
         signInWithEmailAndPassword(FBApp.auth(), user.email, password).then((userCredential) => {
 
             // Set logged in
-            setIsLoggedIn(true);
+            login(true);
             
             // Show notif
             ToastAndroid.showWithGravity('Welcome back, ' + [user.first_name, user.last_name].join(' '), ToastAndroid.LONG, ToastAndroid.TOP);
@@ -92,7 +92,7 @@ const Login = ({ setIsLoggedIn }) => {
                 <View style={{flexDirection: 'row'}}>
                     {/* Don't have any account yet */}
                     <Text style={{fontSize: 12, marginRight: 5}}>Don't have any account yet?</Text>
-                    <Text style={{fontSize: 12, textDecorationLine: 'underline', color: '#389F4F'}} onPress={() => router.push('/auth/Register')}>Sign Up</Text>
+                    <Text style={{fontSize: 12, textDecorationLine: 'underline', color: '#389F4F'}} onPress={() => router.replace('/auth/Register')}>Sign Up</Text>
                 </View>
             </View>
 

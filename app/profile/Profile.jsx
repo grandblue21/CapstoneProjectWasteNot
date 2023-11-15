@@ -1,11 +1,14 @@
 import { View, Text, Image, StyleSheet } from 'react-native';
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { COLORS } from '../../constants';
 import Navigation from '../../components/common/navigation/Navigation';
 
 const Profile = () => {
+
+    const router = useRouter();
+
     return (
         <View style={ styles.container }>
 
@@ -15,7 +18,7 @@ const Profile = () => {
                 headerLeft: () => <ScreenHeaderBtn component={(
                     <FontAwesome name="bars" style={{ fontSize: 23 }} />
                 )} />,
-                headerRight: () => <ScreenHeaderBtn component={(
+                headerRight: () => <ScreenHeaderBtn handlePress={ () => router.push('/profile/EditProfile') } component={(
                     <View style={ styles.editBtnContainer } >
                         <FontAwesome name="pencil" style={ styles.editBtn } />
                     </View>

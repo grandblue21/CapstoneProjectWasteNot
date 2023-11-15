@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, Image, SafeAreaView, Text, TouchableOpacity } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { COLORS, icons, images, SIZES } from '../constants';
-import { Nearbyjobs, Popularjobs, ScreenHeaderBtn, Welcome } from '../components';
 import Dashboard from './dashboard/Dashboard';
-import Chatbot from './chatbot/Chatbot';
 import Login from './auth/Login';
 
 const App = () => {
@@ -12,7 +7,7 @@ const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     return (
-        !isLoggedIn ? <Dashboard setIsLoggedIn={setIsLoggedIn} /> : <Login setIsLoggedIn={setIsLoggedIn} />
+        isLoggedIn ? <Dashboard setLoggedIn={ setIsLoggedIn } /> : <Login login={ setIsLoggedIn } />
     )
 }
 
