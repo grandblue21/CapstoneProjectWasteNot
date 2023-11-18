@@ -4,25 +4,21 @@ import { useRouter, Stack } from 'expo-router';
 import InputIcon from '../../components/auth/InputIcon';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore'; 
 import Checkbox from 'expo-checkbox';
 import { FontAwesome } from '@expo/vector-icons';
-import Header from '../../components/common/header/Header';
 
-const Register = ({ navigation }) => {
+const Register = () => {
 
     const router = useRouter();
 
     // Set Variables
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [address, setAddress] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('Client');
+    const [email, setEmail] = useState('cvamores15@gmail.com');
+    const [firstName, setFirstName] = useState('Client Vincent');
+    const [lastName, setLastName] = useState('Amores');
+    const [address, setAddress] = useState('Ibabao, Mandaue City');
+    const [password, setPassword] = useState('amores15');
     const [isChecked, setChecked] = useState(false);
-
-    // Set Functions
     const handleRegisterPress = () => {
 
         // Dismiss keyboard
@@ -47,10 +43,8 @@ const Register = ({ navigation }) => {
             const user = userCredential.user;
 
             // Set firestore instance
-            const db = FBApp.firestore();
-
-            // Add Document
-            await addDoc(collection(db, 'users'), {
+            FBApp.db.insert('users', {
+                role: 'customer',
                 user_id: userCredential.user.uid,
                 username: username,
                 first_name: firstName,
@@ -64,7 +58,7 @@ const Register = ({ navigation }) => {
 
             // Go to login screen
             setTimeout(() => {
-                navigation.navigate('Login');
+                router.replace('/auth/Login');
             }, 1000);
         })
         .catch((error) => {

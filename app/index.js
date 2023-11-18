@@ -3,12 +3,7 @@ import Dashboard from './dashboard/Dashboard';
 import Login from './auth/Login';
 
 const App = () => {
-
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    return (
-        isLoggedIn ? <Dashboard setLoggedIn={ setIsLoggedIn } /> : <Login login={ setIsLoggedIn } />
-    )
+    return <Dashboard/>;
 }
 
 

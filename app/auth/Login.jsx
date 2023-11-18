@@ -4,15 +4,14 @@ import { useRouter, Stack } from 'expo-router';
 import InputIcon from '../../components/auth/InputIcon';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { signInWithEmailAndPassword  } from 'firebase/auth';
-import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 
-const Login = ({ login }) => {
+const Login = () => {
 
     const router = useRouter();
 
     // Set Variables
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('Client');
+    const [password, setPassword] = useState('amores15');
 
     // Set Functions
     const handleLoginPress = async () => {
@@ -24,13 +23,11 @@ const Login = ({ login }) => {
         const FBApp = new FirebaseApp();
 
         // Signed in 
-        const q = query(collection(FBApp.firestore(), 'users'), where('username', '==', username), limit(1));
-        const userSnapshot = await getDocs(q);
-
-        let user;
-
-        // Get User
-        userSnapshot.forEach((doc) => user = doc.data());
+        const user = await FBApp.db.get('users', {
+            column: 'username',
+            comparison: '==',
+            value: username 
+        }, 1);
 
         // No such user exist
         if (!user) {
@@ -47,11 +44,14 @@ const Login = ({ login }) => {
         // Sign In
         signInWithEmailAndPassword(FBApp.auth(), user.email, password).then((userCredential) => {
 
-            // Set logged in
-            login(true);
+            // Set Session for User
+            FBApp.session.set('user', JSON.stringify(user));
             
             // Show notif
             ToastAndroid.showWithGravity('Welcome back, ' + [user.first_name, user.last_name].join(' '), ToastAndroid.LONG, ToastAndroid.TOP);
+
+            // Go to Dashboard
+            router.replace('/dashboard/Dashboard');
         })
         .catch((error) => {
 

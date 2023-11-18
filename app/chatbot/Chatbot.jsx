@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const Chatbot = () => {
 
-    async function handleSend() {
+    const handleSend = async () => {
 
         // Hide keyboard
         Keyboard.dismiss();

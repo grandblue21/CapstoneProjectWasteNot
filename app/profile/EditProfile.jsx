@@ -1,12 +1,64 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ToastAndroid, Keyboard } from 'react-native';
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { COLORS } from '../../constants';
+import getProfile from '../../hook/getProfile';
+import FirebaseApp from '../../helpers/FirebaseApp';
 
 const EditProfile = () => {
 
     const router = useRouter();
+    const profile = getProfile().data;
+    const [firstName, setFirstName] = useState(profile.first_name);
+    const [lastName, setLastName] = useState(profile.last_name);
+    const [email, setEmail] = useState(profile.email);
+    const [phone, setPhone] = useState(profile.phone);
+    const [address, setAddress] = useState(profile.address);
+    const handleConfirm = async () => {
+
+        // Remove keyboard
+        Keyboard.dismiss();
+
+        // Set firebase instance
+        const FBApp = new FirebaseApp();
+
+        try {
+
+            const new_profile = {
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                phone: phone,
+                address: address
+            }
+            
+            // Update DB
+            await FBApp.db.update('users', new_profile, profile.id);
+
+            // Update Session
+            await FBApp.session.set('user', JSON.stringify({ ...profile, ...new_profile }));
+
+            // Reroute to profile
+            router.replace('/profile/Profile');
+
+            ToastAndroid.showWithGravity('Profile updated', ToastAndroid.LONG, ToastAndroid.TOP);
+            
+        } catch (error) {
+            // ToastAndroid.showWithGravity(error, ToastAndroid.LONG, ToastAndroid.TOP);
+            console.log(error)
+        }
+    }
+
+    // Runs after profile has been loaded
+    useEffect(() => {
+        setFirstName(profile.first_name);
+        setLastName(profile.last_name);
+        setEmail(profile.email);
+        setPhone(profile.phone);
+        setAddress(profile.address);
+    }, [profile]);
 
     return (
         <View style={ styles.container }>
@@ -34,23 +86,28 @@ const EditProfile = () => {
                 <View style={ styles.infoContainer }>
 
                     <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>Name:</Text>
-                        <TextInput style={ styles.infoInput } value="Gazelle" placeholder="Name"/>
+                        <Text style={ styles.infoLabel }>First Name:</Text>
+                        <TextInput style={ styles.infoInput } value={ firstName } placeholder="First Name" onChangeText={ (input) => setFirstName(input) }/>
+                    </View>
+
+                    <View style={ styles.infoItem }>
+                        <Text style={ styles.infoLabel }>Last Name:</Text>
+                        <TextInput style={ styles.infoInput } value={ lastName } placeholder="Last Name" onChangeText={ (input) => setLastName(input) }/>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Gmail:</Text>
-                        <TextInput style={ styles.infoInput } value="gazelle@mailinator.com" placeholder="Email"/>
+                        <TextInput style={ styles.infoInput } value={ email } placeholder="Email" onChangeText={ (input) => setEmail(input) }/>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Phone Number:</Text>
-                        <TextInput style={ styles.infoInput } value="09123456789" placeholder="Number"/>
+                        <TextInput style={ styles.infoInput } value={ profile.phone } placeholder="Number" onChangeText={ (input) => setPhone(input) }/>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Address:</Text>
-                        <TextInput style={ styles.infoInput } value="Ibabao, Mandaue City" placeholder="Location"/>
+                        <TextInput style={ styles.infoInput } value={ address } placeholder="Location" onChangeText={ (input) => setAddress(input) }/>
                     </View>
 
                 </View>
@@ -59,9 +116,9 @@ const EditProfile = () => {
                     <TouchableOpacity style={ styles.cancelButton } onPress={ () => router.back() }>
                         <Text style={ styles.buttonText }>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={ styles.confirmButton }>
+                    <TouchableOpacity style={ styles.confirmButton } onPress={ handleConfirm }>
                         <Text style={ styles.buttonText }>Confirm</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> 
                 </View>
 
             </View>

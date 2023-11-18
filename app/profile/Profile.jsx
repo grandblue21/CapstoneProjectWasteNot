@@ -1,13 +1,16 @@
+import { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { COLORS } from '../../constants';
 import Navigation from '../../components/common/navigation/Navigation';
+import getProfile from '../../hook/getProfile';
 
 const Profile = () => {
 
     const router = useRouter();
+    const profile = getProfile().data;
 
     return (
         <View style={ styles.container }>
@@ -32,28 +35,28 @@ const Profile = () => {
                     <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/666/666201.png' }} style={ styles.image }/>
                 </View>
 
-                <Text style={ styles.nameHeader }>Gazelle</Text>
+                <Text style={ styles.nameHeader }>{ [profile.first_name, profile.last_name].join(' ') }</Text>
 
                 <View style={ styles.infoContainer }>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Name:</Text>
-                        <Text style={ styles.infoText }>Gazelle</Text>
+                        <Text style={ styles.infoText }>{ [profile.first_name, profile.last_name].join(' ') }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Gmail:</Text>
-                        <Text style={ styles.infoText }>gazelle@mailinator.com</Text>
+                        <Text style={ styles.infoText }>{ profile.email }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Phone Number:</Text>
-                        <Text style={ styles.infoText }>09123456789</Text>
+                        <Text style={ styles.infoText }>{ profile.phone ? profile.phone : 'None' }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Address:</Text>
-                        <Text style={ styles.infoText }>Ibabao, Mandaue City</Text>
+                        <Text style={ styles.infoText }>{ profile.address }</Text>
                     </View>
 
                 </View>
@@ -107,7 +110,8 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 5,
         fontWeight: '900',
-        marginBottom: 55
+        marginBottom: 55,
+        textAlign: 'center'
     },
     infoContainer: {
         flex: 1

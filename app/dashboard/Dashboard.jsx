@@ -8,7 +8,7 @@ import Navigation from '../../components/common/navigation/Navigation';
 import Header from '../../components/common/header/Header';
 import { useRouter } from 'expo-router';
 
-const Dashboard = ({ setLoggedIn }) => {
+const Dashboard = () => {
 
     const router = useRouter();
 
@@ -33,7 +33,6 @@ const Dashboard = ({ setLoggedIn }) => {
 
                     router.replace('/auth/Login');
 
-                    setLoggedIn(false);
                 } } style={{ marginBottom: 60, backgroundColor: 'red', alignItems: 'center', padding: 5, borderRadius: 5}}><Text style={{ color: '#FFF'}}>Logout</Text></TouchableOpacity>
 
             </ScrollView>
