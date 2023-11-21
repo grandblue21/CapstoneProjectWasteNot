@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence, getAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getFirestore, addDoc, collection, getDoc, getDocs, updateDoc, query, where, limit  } from 'firebase/firestore';
 
@@ -40,12 +40,12 @@ class FirebaseApp {
 
     db = {
 
-        insert: async (document, values) => {
+        insert: async (collectionName, values) => {
 
             try {
 
                 // Add Document
-                const ref = await addDoc(collection(this.firestore(), document), values);
+                const ref = await addDoc(collection(this.firestore(), collectionName), values);
 
                 return ref;
                 
@@ -56,11 +56,11 @@ class FirebaseApp {
             return false;
         },
 
-        get: async (document, filter = null, numberOfData = 0) => {
+        gets: async (collectionName, filter = null, numberOfData = 0) => {
 
             try {
                 
-                const q = query(collection(this.firestore(), document), filter ? where(filter.column, filter.comparison, filter.value) : null, numberOfData ? limit(numberOfData) : null);
+                const q = query(collection(this.firestore(), collectionName), filter ? where(filter.column, filter.comparison, filter.value) : null, numberOfData ? limit(numberOfData) : null);
 
                 const dataSnapshot = await getDocs(q);
 
@@ -68,7 +68,7 @@ class FirebaseApp {
 
                 dataSnapshot.forEach((iteration) => data.push({ ...iteration.data(), id: iteration.id }));
 
-                return limit > 1 && data.length > 0 ? data : (data.length > 0 ? data[0] : []);
+                return data;
             }
             catch (error) {
                 console.log(error);
@@ -77,17 +77,41 @@ class FirebaseApp {
             return false;
         },
 
-        update: async (document, values, filter) => {
+        get: async (collectionName, filter) => {
+
+            try {
+
+                const q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value), limit(1));
+                
+                const docSnapshot = await getDocs(q);
+
+                // Check there are docs
+                if (docSnapshot.docs.length > 0) {
+                    return { ...docSnapshot.docs[0].data(), id: docSnapshot.docs[0].id };
+                }
+                else {
+                    return null;
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+
+            return false;
+        },
+
+        update: async (collectionName, values, filter) => {
 
             try {
                 
-                const ref = doc(this.firestore(), document, filter);
+                const ref = doc(this.firestore(), collectionName, filter);
 
                 await updateDoc(ref, values);
 
                 return true;
 
-            } catch (error) {
+            }
+            catch (error) {
                 console.log(error);
             }
 

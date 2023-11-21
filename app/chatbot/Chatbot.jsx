@@ -1,13 +1,37 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { SafeAreaView, ScrollView, View, Text, StyleSheet, Keyboard, TouchableOpacity, Image, TextInput, ToastAndroid } from 'react-native';
-import { COLORS, FONT, SIZES } from '../../constants';
+import { COLORS, FONT, SIZES, COLLECTIONS } from '../../constants';
 import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
 import { FontAwesome } from '@expo/vector-icons';
 import Header from '../../components/common/header/Header';
 import axios from 'axios';
+import FirebaseApp from '../../helpers/FirebaseApp';
+import getProfile from '../../hook/getProfile';
 
 const Chatbot = () => {
+
+    const FBApp = new FirebaseApp();
+
+    const newMessage = async (isBot, message) => {
+
+        try {
+            // Update Conversation
+            await FBApp.db.insert(COLLECTIONS.chat, {
+                user_id: profile.user_id,
+                isBot: isBot,
+                message: message
+            });
+
+            setConversation((prev) => ([...prev, {
+                isBot: isBot,
+                message: message
+            }]));
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
 
     const handleSend = async () => {
 
@@ -31,12 +55,9 @@ const Chatbot = () => {
                 temperature: 1
             }
         };
-        
-        // Include to conversation
-        setConversation((prev) => ([...prev, {
-            isBot: false,
-            message: inputQuery
-        }]));
+
+        // Include to convo
+        await newMessage(false, inputQuery);
 
         // Empty input query
         setInputQuery('');
@@ -50,10 +71,7 @@ const Chatbot = () => {
             const response = await axios.request(options);
 
             // Include to conversation
-            setConversation((prev) => ([...prev, {
-                isBot: true,
-                message: response.data.choices[0].message.content
-            }]));
+            newMessage(true, response.data.choices[0].message.content);
 
             // Scroll to bottom
             scrollViewRef.current.scrollToEnd({ animated: true });
@@ -73,15 +91,55 @@ const Chatbot = () => {
             uri: 'https://cdn1.iconfinder.com/data/icons/contact-contact-us-communication-social-media-se-3/32/Contact-09-512.png'
         }
     }
-
-    // Initialize Conversation
-    const [conversation, setConversation] = useState([{
-        isBot: true,
-        message: 'Hi! How Can I help you today?'
-    }]);
     
     // Initialize Input Query
     const [inputQuery, setInputQuery] = useState('');
+
+    // Initialize Conversation
+    const [conversation, setConversation] = useState([]);
+
+    // Get Profile
+    const [profile, setProfile] = useState({});
+
+    const getProfileData = async () => {
+        try {
+            const profileData = (await getProfile()).data;
+            setProfile(profileData);
+        }
+        catch (error) {
+          console.error('Error fetching profile:', error);
+        }
+    };
+    
+    const getConversationData = async () => {
+
+        try {
+
+            const convo = await FBApp.db.gets(COLLECTIONS.chat, {
+                column: 'user_id',
+                comparison: '==',
+                value: profile.user_id
+            });
+        
+            setConversation(convo || [{
+                isBot: true,
+                message: 'Hi! How can I help you today?'
+            }]);
+        }
+        catch (error) {
+          console.error('Error fetching conversation:', error);
+        }
+    };
+    
+    useEffect(() => {
+        getProfileData();
+    }, []);
+    
+    useEffect(() => {
+        if (profile.user_id) {
+            getConversationData();
+        }
+    }, [profile]);
     
     return (
         <SafeAreaView style={styles.container}>

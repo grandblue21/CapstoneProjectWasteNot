@@ -6,18 +6,19 @@ import FirebaseApp from '../../helpers/FirebaseApp';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Checkbox from 'expo-checkbox';
 import { FontAwesome } from '@expo/vector-icons';
+import { ROLES, COLLECTIONS } from '../../constants';
 
 const Register = () => {
 
     const router = useRouter();
 
     // Set Variables
-    const [username, setUsername] = useState('Client');
-    const [email, setEmail] = useState('cvamores15@gmail.com');
-    const [firstName, setFirstName] = useState('Client Vincent');
-    const [lastName, setLastName] = useState('Amores');
-    const [address, setAddress] = useState('Ibabao, Mandaue City');
-    const [password, setPassword] = useState('amores15');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [address, setAddress] = useState('');
+    const [password, setPassword] = useState('');
     const [isChecked, setChecked] = useState(false);
     const handleRegisterPress = () => {
 
@@ -43,8 +44,8 @@ const Register = () => {
             const user = userCredential.user;
 
             // Set firestore instance
-            FBApp.db.insert('users', {
-                role: 'customer',
+            FBApp.db.insert(COLLECTIONS.user, {
+                role: ROLES.customer,
                 user_id: userCredential.user.uid,
                 username: username,
                 first_name: firstName,

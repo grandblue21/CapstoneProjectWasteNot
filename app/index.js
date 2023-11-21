@@ -3,7 +3,7 @@ import Dashboard from './dashboard/Dashboard';
 import Login from './auth/Login';
 
 const App = () => {
-    return <Dashboard/>;
+    return <Login/>;
 }
 
 

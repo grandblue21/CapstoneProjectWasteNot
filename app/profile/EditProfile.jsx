@@ -3,14 +3,14 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, ToastAndroi
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import { COLORS } from '../../constants';
+import { COLORS, COLLECTIONS } from '../../constants';
 import getProfile from '../../hook/getProfile';
 import FirebaseApp from '../../helpers/FirebaseApp';
 
 const EditProfile = () => {
 
     const router = useRouter();
-    const profile = getProfile().data;
+    const profile = getProfile().profile;
     const [firstName, setFirstName] = useState(profile.first_name);
     const [lastName, setLastName] = useState(profile.last_name);
     const [email, setEmail] = useState(profile.email);
@@ -35,7 +35,7 @@ const EditProfile = () => {
             }
             
             // Update DB
-            await FBApp.db.update('users', new_profile, profile.id);
+            await FBApp.db.update(COLLECTIONS.user, new_profile, profile.id);
 
             // Update Session
             await FBApp.session.set('user', JSON.stringify({ ...profile, ...new_profile }));
@@ -102,7 +102,7 @@ const EditProfile = () => {
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Phone Number:</Text>
-                        <TextInput style={ styles.infoInput } value={ profile.phone } placeholder="Number" onChangeText={ (input) => setPhone(input) }/>
+                        <TextInput style={ styles.infoInput } value={ phone } placeholder="Number" onChangeText={ (input) => setPhone(input) }/>
                     </View>
 
                     <View style={ styles.infoItem }>

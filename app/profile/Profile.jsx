@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
@@ -10,7 +9,7 @@ import getProfile from '../../hook/getProfile';
 const Profile = () => {
 
     const router = useRouter();
-    const profile = getProfile().data;
+    const { profile } = getProfile();
 
     return (
         <View style={ styles.container }>

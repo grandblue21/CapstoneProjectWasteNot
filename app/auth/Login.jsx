@@ -4,14 +4,15 @@ import { useRouter, Stack } from 'expo-router';
 import InputIcon from '../../components/auth/InputIcon';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { signInWithEmailAndPassword  } from 'firebase/auth';
+import { ROLES, COLLECTIONS } from '../../constants';
 
 const Login = () => {
 
     const router = useRouter();
 
     // Set Variables
-    const [username, setUsername] = useState('Client');
-    const [password, setPassword] = useState('amores15');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     // Set Functions
     const handleLoginPress = async () => {
@@ -23,11 +24,11 @@ const Login = () => {
         const FBApp = new FirebaseApp();
 
         // Signed in 
-        const user = await FBApp.db.get('users', {
+        const user = await FBApp.db.get(COLLECTIONS.user, {
             column: 'username',
             comparison: '==',
-            value: username 
-        }, 1);
+            value: username
+        });
 
         // No such user exist
         if (!user) {
@@ -50,8 +51,11 @@ const Login = () => {
             // Show notif
             ToastAndroid.showWithGravity('Welcome back, ' + [user.first_name, user.last_name].join(' '), ToastAndroid.LONG, ToastAndroid.TOP);
 
-            // Go to Dashboard
-            router.replace('/dashboard/Dashboard');
+            // Based Dashboard
+            switch (user.role) {
+                case ROLES.customer: router.replace('/dashboard/Dashboard'); break;
+                case ROLES.staff: router.replace('/dashboard/StaffDashboard'); break;
+            }
         })
         .catch((error) => {
 

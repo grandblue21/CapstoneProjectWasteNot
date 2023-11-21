@@ -1,14 +1,16 @@
-import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList, SafeAreaView } from 'react-native';
 import { SIZES } from '../../constants';
-import Search from '../../components/home/search/Search';
-import Restaurants from '../../components/home/restaurants/Restaurants';
-import ForSale from '../../components/home/for-sale/ForSale';
-import Chatbot from '../../components/home/chatbot/ChatBot';
-import Navigation from '../../components/common/navigation/Navigation';
 import Header from '../../components/common/header/Header';
+import Search from '../../components/home/search/Search';
+import Board from '../../components/home/board/Board';
+import TopDishes from '../../components/home/top-dishes/TopDishes';
+import Inventory from '../../components/home/inventory/Inventory';
+import Navigation from '../../components/common/navigation/Navigation';
+import SaleItems from '../../components/home/sale-items/SaleItems';
 import { useRouter } from 'expo-router';
 
-const Dashboard = () => {
+const StaffDashboard = () => {
 
     const router = useRouter();
 
@@ -23,11 +25,13 @@ const Dashboard = () => {
 
                 <Search/>
             
-                <Restaurants/>
+                <Board/>
 
-                <ForSale/>
+                <TopDishes/>
+                
+                <Inventory/>
 
-                <Chatbot/>
+                <SaleItems/>
             
                 <TouchableOpacity onPress={ () => {
 
@@ -56,4 +60,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Dashboard;
+export default StaffDashboard;
