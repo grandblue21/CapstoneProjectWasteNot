@@ -8,31 +8,55 @@ import Header from '../../components/common/header/Header';
 import axios from 'axios';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import getProfile from '../../hook/getProfile';
+import { Timestamp } from 'firebase/firestore';
 
 const Chatbot = () => {
+    
+    // Initialize Input Query
+    const [inputQuery, setInputQuery] = useState('');
 
+    // Initialize Conversation
+    const [conversation, setConversation] = useState([]);
+
+    // Reference for Scroll View Component
+    const scrollViewRef = useRef(null);
+
+    // Get Profile
+    const session = getProfile();
+
+    // Set Firebase Instance
     const FBApp = new FirebaseApp();
 
+    // Scroll to bottom
+    const toBottom = () => scrollViewRef.current.scrollToEnd({ animated: true });
+
+    // Save Message
     const newMessage = async (isBot, message) => {
 
         try {
+
             // Update Conversation
             await FBApp.db.insert(COLLECTIONS.chat, {
-                user_id: profile.user_id,
+                user_id: session.profile.user_id,
                 isBot: isBot,
-                message: message
+                message: message,
+                created_at: Timestamp.fromDate(new Date())
             });
 
             setConversation((prev) => ([...prev, {
                 isBot: isBot,
                 message: message
             }]));
+
+            // To Bottom
+            toBottom();
         }
         catch (error) {
             console.log(error);
         }
     }
 
+    // Handle Send Message
     const handleSend = async () => {
 
         // Hide keyboard
@@ -41,29 +65,35 @@ const Chatbot = () => {
         // Request options
         const options = {
             method: 'POST',
-            url: 'https://chatgpt53.p.rapidapi.com/',
+            url: 'https://chatgpt-openai.p.rapidapi.com/chat-completion',
             headers: {
                 'content-type': 'application/json',
                 'X-RapidAPI-Key': 'afab6284a5mshae6dd43c22e53a1p14328bjsn3e3a0c4e172d',
-                'X-RapidAPI-Host': 'chatgpt53.p.rapidapi.com'
+                'X-RapidAPI-Host': 'chatgpt-openai.p.rapidapi.com'
             },
             data: {
                 messages: [{
-                    role: 'user',
+                    role: 'assistant',
                     content: inputQuery
                 }],
                 temperature: 1
             }
-        };
+
+            // Experimental
+            /* data: {
+                messages: conversation.map(x => ({
+                    role: x.isBot ? 'assistant' : 'user',
+                    content: x.message
+                })),
+                temperature: 1
+            } */
+        }
 
         // Include to convo
         await newMessage(false, inputQuery);
 
         // Empty input query
         setInputQuery('');
-
-        // Scroll to bottom
-        scrollViewRef.current.scrollToEnd({ animated: true });
         
         try {
 
@@ -71,19 +101,16 @@ const Chatbot = () => {
             const response = await axios.request(options);
 
             // Include to conversation
-            newMessage(true, response.data.choices[0].message.content);
+            newMessage(true, response.data.content);
 
             // Scroll to bottom
             scrollViewRef.current.scrollToEnd({ animated: true });
         }
-        catch (error) {
+        catch (error) {console.log(error);
              // Show notif
              ToastAndroid.showWithGravity('WasteNot AI cannot reply. Please try again later.', ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
-
-    // Reference for Scroll View Component
-    const scrollViewRef = useRef(null);
 
     // Chat Images
     const images = (isBot) => {
@@ -92,39 +119,29 @@ const Chatbot = () => {
         }
     }
     
-    // Initialize Input Query
-    const [inputQuery, setInputQuery] = useState('');
-
-    // Initialize Conversation
-    const [conversation, setConversation] = useState([]);
-
-    // Get Profile
-    const [profile, setProfile] = useState({});
-
-    const getProfileData = async () => {
-        try {
-            const profileData = (await getProfile()).data;
-            setProfile(profileData);
-        }
-        catch (error) {
-          console.error('Error fetching profile:', error);
-        }
-    };
-    
+    // Get Conversation
     const getConversationData = async () => {
 
         try {
 
+            // Get Convo
             const convo = await FBApp.db.gets(COLLECTIONS.chat, {
                 column: 'user_id',
                 comparison: '==',
-                value: profile.user_id
+                value: session.profile.user_id
+            }, {
+                column: 'created_at',
+                direction: 'asc'
             });
         
+            // Set Conversation
             setConversation(convo || [{
                 isBot: true,
                 message: 'Hi! How can I help you today?'
             }]);
+
+            // Scroll to bottom
+            scrollViewRef.current.scrollToEnd({ animated: true });
         }
         catch (error) {
           console.error('Error fetching conversation:', error);
@@ -132,14 +149,11 @@ const Chatbot = () => {
     };
     
     useEffect(() => {
-        getProfileData();
-    }, []);
-    
-    useEffect(() => {
-        if (profile.user_id) {
+        // Only get conversation of session is loaded
+        if (session.profile && session.profile.user_id) {
             getConversationData();
         }
-    }, [profile]);
+    }, [session.profile]);
     
     return (
         <SafeAreaView style={styles.container}>
@@ -147,7 +161,9 @@ const Chatbot = () => {
             <Header title={ 'Chatbot' }/>
 
             <View style={styles.body}>
+
                 <Search/>
+
                 <ScrollView style={styles.convoContainer} ref={scrollViewRef}>
                     {
                         conversation.map((chat, index) => (
@@ -160,6 +176,7 @@ const Chatbot = () => {
                         ))
                     }
                 </ScrollView>
+
             </View>
 
             <View style={styles.chatInputWrapper}>

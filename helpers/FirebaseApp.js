@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getFirestore, addDoc, collection, getDoc, getDocs, updateDoc, query, where, limit  } from 'firebase/firestore';
+import { doc, getFirestore, addDoc, collection, getDoc, getDocs, updateDoc, query, where, limit, orderBy } from 'firebase/firestore';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -21,14 +21,17 @@ class FirebaseApp {
         this._instance = initializeApp(firebaseConfig);
     }
 
+    // Firebase Instance
     getInstance = () =>  {
         return this._instance;
     }
 
+    // Firebase Authentication
     auth = () => {
         return getAuth(this._instance);
     }
 
+    // Firestore
     firestore = () => {
 
         if (!this._firestore_instance) {
@@ -38,8 +41,10 @@ class FirebaseApp {
         return this._firestore_instance;
     }
 
+    // Database Helper
     db = {
 
+        // Insert
         insert: async (collectionName, values) => {
 
             try {
@@ -49,18 +54,22 @@ class FirebaseApp {
 
                 return ref;
                 
-            } catch (error) {
+            }
+            catch (error) {
                 console.log(error);
             }
 
             return false;
         },
 
-        gets: async (collectionName, filter = null, numberOfData = 0) => {
+        // Get more than one data
+        gets: async (collectionName, filter, order) => {
 
             try {
+
+                // Order: orderBy(order.column, order.direction)
                 
-                const q = query(collection(this.firestore(), collectionName), filter ? where(filter.column, filter.comparison, filter.value) : null, numberOfData ? limit(numberOfData) : null);
+                const q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value));
 
                 const dataSnapshot = await getDocs(q);
 
@@ -74,9 +83,10 @@ class FirebaseApp {
                 console.log(error);
             }
 
-            return false;
+            return [];
         },
 
+        // Get specific data
         get: async (collectionName, filter) => {
 
             try {
@@ -97,9 +107,10 @@ class FirebaseApp {
                 console.log(error);
             }
 
-            return false;
+            return null;
         },
 
+        // Update Data
         update: async (collectionName, values, filter) => {
 
             try {
@@ -121,8 +132,10 @@ class FirebaseApp {
 
     }
 
+    // Session Helper
     session = {
 
+        // Set
         set: async (key, value) => {
 
             try {
@@ -138,6 +151,7 @@ class FirebaseApp {
             return false;
         },
 
+        // Get
         get: async (key) => {
 
             try {
@@ -153,6 +167,23 @@ class FirebaseApp {
             return false;
         },
 
+        // Remove
+        remove: async (key) => {
+
+            try {
+                
+                const item = await ReactNativeAsyncStorage.removeItem(key);
+
+                return item;
+
+            } catch (error) {
+                console.log('Session Remove Error: ', error);
+            }
+
+            return false;
+        },
+
+        // Clear
         clear: async () => {
 
             try {

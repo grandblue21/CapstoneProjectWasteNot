@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import FirebaseApp from '../helpers/FirebaseApp';
 
 const getProfile = () => {
-    const [profile, setProfile] = useState([]);
+
+    const [profile, setProfile] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -16,7 +17,7 @@ const getProfile = () => {
 
             const userdata = await FBApp.session.get('user');
 
-            setProfile(JSON.parse(userdata));
+            setProfile(userdata && JSON.parse(userdata));
 
             setIsLoading(false);
         }
