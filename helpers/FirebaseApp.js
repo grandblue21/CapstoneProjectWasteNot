@@ -67,9 +67,7 @@ class FirebaseApp {
 
             try {
 
-                // Order: orderBy(order.column, order.direction)
-                
-                const q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value));
+                const q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value), orderBy(order.column, order.direction));
 
                 const dataSnapshot = await getDocs(q);
 

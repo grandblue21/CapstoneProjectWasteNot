@@ -72,21 +72,12 @@ const Chatbot = () => {
                 'X-RapidAPI-Host': 'chatgpt-openai.p.rapidapi.com'
             },
             data: {
-                messages: [{
-                    role: 'assistant',
-                    content: inputQuery
-                }],
-                temperature: 1
-            }
-
-            // Experimental
-            /* data: {
                 messages: conversation.map(x => ({
                     role: x.isBot ? 'assistant' : 'user',
                     content: x.message
                 })),
                 temperature: 1
-            } */
+            }
         }
 
         // Include to convo
@@ -135,7 +126,7 @@ const Chatbot = () => {
             });
         
             // Set Conversation
-            setConversation(convo || [{
+            setConversation(convo.length > 0 ? convo : [{
                 isBot: true,
                 message: 'Hi! How can I help you today?'
             }]);
@@ -144,7 +135,7 @@ const Chatbot = () => {
             scrollViewRef.current.scrollToEnd({ animated: true });
         }
         catch (error) {
-          console.error('Error fetching conversation:', error);
+            console.error('Error fetching conversation:', error);
         }
     };
     
