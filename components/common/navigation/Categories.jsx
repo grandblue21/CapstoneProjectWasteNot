@@ -4,11 +4,9 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 const Categories = ({ categories, onCategoryChange }) => {
   const [categoryIndex, setCategoryIndex] = useState(0);
 
-  const handleCategoryChange = (index) => {
+  const handleCategoryChange = (index, item) => {
     setCategoryIndex(index);
-    if (onCategoryChange) {
-      onCategoryChange(index);
-    }
+    onCategoryChange(index, item);
   };
   return (
     <ScrollView
@@ -19,7 +17,7 @@ const Categories = ({ categories, onCategoryChange }) => {
         <TouchableOpacity
           key={index}
           activeOpacity={0.8}
-          onPress={() => handleCategoryChange(index)}
+          onPress={() => handleCategoryChange(index, item)}
           style={index < categories.length - 1 ? styles.categoryItem : null}>
           <Text
             style={[
