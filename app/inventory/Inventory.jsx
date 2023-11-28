@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
 import Header from '../../components/common/header/Header';
 import { AntDesign } from '@expo/vector-icons';
@@ -6,6 +6,7 @@ import Search from '../../components/home/search/Search';
 import { useRouter } from 'expo-router';
 import Categories from '../../components/common/navigation/Categories';
 import Navigation from '../../components/common/navigation/Navigation';
+import getIngredients from '../../hook/getIngredients';
 
 const Inventory = () => {
 
@@ -13,15 +14,16 @@ const Inventory = () => {
 
     const [selectedCategory, setSelectedCategory] = useState(0);
     const categories = ['All', 'Meat', 'Vegetables', 'Spices'];
+    const { ingredients, isLoading } = getIngredients();
     const inventoryList = [
-        { itemName: 'Item 1', category: 'Meat', stock: 20, image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' },
-        { itemName: 'Item 2', category: 'Vegetables', stock: 5, image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' },
-        { itemName: 'Item 3', category: 'Spices', stock: 0, image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' },
-        { itemName: 'Item 4', category: 'Spices', stock: 8, image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' },
-        { itemName: 'Item 5', category: 'Vegetables', stock: 15, image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg' },
-        { itemName: 'Item 6', category: 'Meat', stock: 0, image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml' },
-        { itemName: 'Item 7', category: 'Meat', stock: 10, image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml' },
-        { itemName: 'Item 8', category: 'Meat', stock: 5, image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg' },
+        { name: 'Item 1', category: 'Meat', stock: 20, image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' },
+        { name: 'Item 2', category: 'Vegetables', stock: 5, image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' },
+        { name: 'Item 3', category: 'Spices', stock: 0, image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' },
+        { name: 'Item 4', category: 'Spices', stock: 8, image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' },
+        { name: 'Item 5', category: 'Vegetables', stock: 15, image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg' },
+        { name: 'Item 6', category: 'Meat', stock: 0, image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml' },
+        { name: 'Item 7', category: 'Meat', stock: 10, image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml' },
+        { name: 'Item 8', category: 'Meat', stock: 5, image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg' },
         // Add more data as needed
     ];
     const [inventoryItems, setInventoryItems] = useState(inventoryList);
@@ -32,6 +34,10 @@ const Inventory = () => {
             (category != categories[0] && x.category == category) || category == categories[0]
         )));
     };
+
+    useEffect(() => {
+        setInventoryItems(ingredients);
+    }, [isLoading]);
 
     return (
         <View style={ styles.container }>
@@ -68,7 +74,7 @@ const Inventory = () => {
                                     <View style={ styles.itemInfoContainer }>
                                         <Image source={{ uri: item.image }} style={ styles.itemImage } />
                                         <View style={ styles.itemDetails }>
-                                            <Text style={ styles.itemName }>{item.itemName }</Text>
+                                            <Text style={ styles.itemName }>{ item.name }</Text>
                                         </View>
                                     </View>
                                     {/* In Stock Label with kilograms */}

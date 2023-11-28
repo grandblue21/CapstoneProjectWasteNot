@@ -63,11 +63,24 @@ class FirebaseApp {
         },
 
         // Get more than one data
-        gets: async (collectionName, filter, order) => {
+        gets: async (collectionName, filter = null, order = null) => {
 
             try {
 
-                const q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value), orderBy(order.column, order.direction));
+                let q;
+
+                if (filter && order) {
+                    q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value), orderBy(order.column, order.direction));
+                }
+                else if (filter) {
+                    q = query(collection(this.firestore(), collectionName), where(filter.column, filter.comparison, filter.value));
+                }
+                else if (order) {
+                    q = query(collection(this.firestore(), collectionName), orderBy(order.column, order.direction));
+                }
+                else {
+                    q = query(collection(this.firestore(), collectionName));
+                }
 
                 const dataSnapshot = await getDocs(q);
 
