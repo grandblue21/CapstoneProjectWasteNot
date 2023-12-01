@@ -30,7 +30,7 @@ const Inventory = () => {
 
     const handleCategoryChange = (index, category) => {
         setSelectedCategory(index);
-        setInventoryItems(inventoryList.filter((x) => (
+        setInventoryItems(ingredients.filter((x) => (
             (category != categories[0] && x.category == category) || category == categories[0]
         )));
     };
@@ -43,7 +43,7 @@ const Inventory = () => {
         <View style={ styles.container }>
             <Header title="Inventory"/>
             <Search/>
-            <View style={  styles.body }>
+            <View style={ styles.body }>
                 <Text style={ styles.txtHeader }>Everything you need</Text>
                 <View style={ styles.contentContainer }>
                     <Categories categories={ categories } onCategoryChange={ handleCategoryChange } />
@@ -79,7 +79,7 @@ const Inventory = () => {
                                     </View>
                                     {/* In Stock Label with kilograms */}
                                     <Text style={ styles.inStockLabel }>{`${item.stock} kg`}</Text>
-                                    <TouchableOpacity style={ { paddingLeft: 10 } }>
+                                    <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace('/ingredient/History') }>
                                         <AntDesign name="doubleright" size={ 20 } color="#389F4F" />
                                     </TouchableOpacity>
                                 </View>

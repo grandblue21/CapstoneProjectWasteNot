@@ -23,7 +23,9 @@ const AddIngredient = () => {
 
         setScanned(true);
 
-        try {
+        router.replace(`/ingredient/${data}`);
+
+        /* try {
             
             await FBApp.db.insert(COLLECTIONS.ingredients, {
                 id: data,
@@ -33,7 +35,7 @@ const AddIngredient = () => {
                 image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1'
             });
 
-            router.replace('/inventory/Inventory');
+            
 
             // Show notif
             ToastAndroid.showWithGravity('Ingredient Added', ToastAndroid.LONG, ToastAndroid.TOP);
@@ -41,7 +43,7 @@ const AddIngredient = () => {
         catch (error) {
             setScanned(false);
             console.log(error);
-        }
+        } */
     };
 
     useEffect(() => {
