@@ -45,6 +45,11 @@ const Navigation = ({ currentRoute, logout }) => {
         applicable_roles: [ROLES.staff],
         navigate: () => router.replace('/market/StaffMarket')
     }, {
+        icon: 'shopping-basket',
+        name: 'Wishlist',
+        applicable_roles: [ROLES.customer],
+        navigate: () => router.replace('/wishlist/Wishlist')
+    }, {
         icon: 'user-circle-o',
         name: 'Profile',
         applicable_roles: [ROLES.customer, ROLES.staff],

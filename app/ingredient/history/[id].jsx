@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
-import Header from '../../components/common/header/Header';
+import Header from '../../../components/common/header/Header';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS } from '../../constants';
+import { COLORS } from '../../../constants';
 import moment from 'moment/moment';
 
 const History = () => {
