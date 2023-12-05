@@ -1,7 +1,8 @@
 const COLLECTIONS = {
     user: 'users',
     chat: 'chatbot_conversation',
-    ingredients: 'ingredients'
+    ingredients: 'ingredients',
+    restaurants: 'admin_users'
 }
 
 const ROLES = {
@@ -9,4 +10,18 @@ const ROLES = {
     staff: 'staff'
 }
 
-export { COLLECTIONS, ROLES };
+const CATEGORIES = [
+    'Meat',
+    'Seafood',
+    'Fruits',
+    'Vegetable',
+    'Dairy and Alternative',
+    'Grains and Cereals',
+    'Herbs and Spices',
+    'Nuts and Seeds',
+    'Condiments and Sauces',
+    'Beverages',
+    'Sweeteners'
+]
+
+export { COLLECTIONS, ROLES, CATEGORIES };

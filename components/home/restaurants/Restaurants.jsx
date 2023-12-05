@@ -1,10 +1,15 @@
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { COLORS, FONT, SIZES } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
+import getRestaurants from '../../../hook/getRestaurants';
+import { useRouter } from 'expo-router';
 
 const Restaurants = () => {
 
-    const restaurants = [
+    const router = useRouter();
+    const { restaurants } = getRestaurants();
+    
+    /* const restaurants = [
         {
             image: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg' 
         },
@@ -17,7 +22,7 @@ const Restaurants = () => {
         {
             image: 'https://img.freepik.com/premium-vector/catering-quality-food-design-logo_187482-593.jpg'
         }
-    ];
+    ]; */
 
     return (
         <View style={styles.container}>
@@ -33,8 +38,8 @@ const Restaurants = () => {
                 <FlatList
                     data={ restaurants }
                     renderItem={({ item }) => (
-                        <TouchableOpacity>
-                            <Image source={{ uri: item.image }} style={styles.restaurant} />
+                        <TouchableOpacity onPress={ () => router.replace(`/restaurant/market/${item.id}`) }>
+                            <Image src={ item.restaurantLogo } style={styles.restaurant} />
                         </TouchableOpacity>
                     )}
                     keyExtractor={(item, index) => index}

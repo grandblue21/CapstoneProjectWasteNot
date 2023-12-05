@@ -86,7 +86,7 @@ const Login = () => {
             // Get user if email
             if (is_email) {
                 user = await get_user({
-                    column: 'user_id',
+                    column: 'userId',
                     comparison: '==',
                     value: userCredential.user.uid
                 });
@@ -96,7 +96,7 @@ const Login = () => {
             FBApp.session.set('user', JSON.stringify(user));
             
             // Show notif
-            ToastAndroid.showWithGravity('Welcome back, ' + [user.first_name, user.last_name].join(' '), ToastAndroid.LONG, ToastAndroid.TOP);
+            ToastAndroid.showWithGravity('Welcome back, ' + [user.firstName, user.lastName].join(' '), ToastAndroid.LONG, ToastAndroid.TOP);
 
             // Based Dashboard
             switch (user.role) {

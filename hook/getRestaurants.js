@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import FirebaseApp from '../helpers/FirebaseApp';
 import { COLLECTIONS } from '../constants';
 
-const getIngredients = () => {
+const getRestaurants = () => {
 
-    const [ingredients, setIngredients] = useState([]);
+    const [restaurants, setRestaurants] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -16,9 +16,9 @@ const getIngredients = () => {
             // Set FireBase App Instance
             const FBApp = new FirebaseApp();
 
-            const data = await FBApp.db.gets(COLLECTIONS.ingredients);
+            const data = await FBApp.db.gets(COLLECTIONS.restaurants);
 
-            setIngredients(data);
+            setRestaurants(data);
 
             setIsLoading(false);
         }
@@ -40,8 +40,8 @@ const getIngredients = () => {
     }
 
     return {
-        ingredients, isLoading, error, refetch
+        restaurants, isLoading, error, refetch
     }
 }
 
-export default getIngredients;
+export default getRestaurants;

@@ -121,6 +121,30 @@ class FirebaseApp {
             return null;
         },
 
+        // Get data from Ref
+        get_from_ref: async (collectionName, passedRef) => {
+
+            try {
+                
+                const ref = doc(this.firestore(), collectionName, passedRef);
+
+                const docSnapshot = await getDoc(ref);
+                
+                // Check there are doc
+                if (docSnapshot.exists()) {
+                    return { ...docSnapshot.data(), id: docSnapshot.id };
+                }
+                else {
+                    return null;
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+
+            return false;
+        },
+
         // Update Data
         update: async (collectionName, values, filter) => {
 

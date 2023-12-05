@@ -6,10 +6,13 @@ import Navigation from '../../components/common/navigation/Navigation';
 import { FontAwesome } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
+import getRestaurants from '../../hook/getRestaurants';
 
 const Market = () => {
 
-    const restaurants = [
+    const { restaurants } = getRestaurants();
+
+    /* const restaurants = [
         {
             image: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg',
             name: 'Chef Cooking'
@@ -26,10 +29,10 @@ const Market = () => {
             image: 'https://img.freepik.com/premium-vector/catering-quality-food-design-logo_187482-593.jpg',
             name: 'Quality Food'
         }
-    ];
+    ]; */
 
     const router = useRouter();
-    
+
     return (
         <SafeAreaView style={ styles.container }>
 
@@ -45,14 +48,14 @@ const Market = () => {
 
                     {
                         restaurants.map((restaurant, index) => (
-                            <TouchableOpacity key={ index } style={ styles.restaurant } onPress={ () => router.replace('/restaurant/Restaurant') }>
+                            <TouchableOpacity key={ index } style={ styles.restaurant } onPress={ () => router.replace(`/restaurant/market/${restaurant.id}`) }>
 
-                                <Image src={ restaurant.image } style={ styles.restaurantImage }/>
+                                <Image src={ 'https://img.freepik.com/premium-vector/catering-quality-food-design-logo_187482-593.jpg' } style={ styles.restaurantImage }/>
 
-                                <Text style={ styles.restaurantName }>{ restaurant.name }</Text>
+                                <Text style={ styles.restaurantName }>{ restaurant.restaurantName }</Text>
 
                                 <View style={ styles.restaurantViewContainer }>
-                                    <Text style={ styles.restaurantViewText }>Tap to View</Text>
+                                    <Text style={ styles.restaurantViewText } numberOfLines={ 1 }>Tap to View</Text>
                                     <FontAwesome name="chevron-right" style={ styles.restaurantViewIcon }/>
                                 </View>
                                 
@@ -112,6 +115,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     restaurantViewContainer: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         position: 'absolute',

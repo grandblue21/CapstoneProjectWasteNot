@@ -34,13 +34,13 @@ const Profile = () => {
                     <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/666/666201.png' }} style={ styles.image }/>
                 </View>
 
-                <Text style={ styles.nameHeader }>{ [profile.first_name, profile.last_name].join(' ') }</Text>
+                <Text style={ styles.nameHeader }>{ [profile.firstName, profile.lastName].join(' ') }</Text>
 
                 <View style={ styles.infoContainer }>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Name:</Text>
-                        <Text style={ styles.infoText }>{ [profile.first_name, profile.last_name].join(' ') }</Text>
+                        <Text style={ styles.infoText }>{ [profile.firstName, profile.lastName].join(' ') }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>
@@ -50,7 +50,7 @@ const Profile = () => {
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Phone Number:</Text>
-                        <Text style={ styles.infoText }>{ profile.phone ? profile.phone : 'None' }</Text>
+                        <Text style={ styles.infoText }>{ profile.phone ? profile.contactNum : 'None' }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>

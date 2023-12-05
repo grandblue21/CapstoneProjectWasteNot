@@ -27,10 +27,10 @@ const EditProfile = () => {
         try {
 
             const new_profile = {
-                first_name: firstName,
-                last_name: lastName,
+                firstName: firstName,
+                lastName: lastName,
                 email: email,
-                phone: phone,
+                contactNum: phone,
                 address: address
             }
             
@@ -53,8 +53,8 @@ const EditProfile = () => {
 
     // Runs after profile has been loaded
     useEffect(() => {
-        setFirstName(profile.first_name);
-        setLastName(profile.last_name);
+        setFirstName(profile.firstName);
+        setLastName(profile.lastName);
         setEmail(profile.email);
         setPhone(profile.phone);
         setAddress(profile.address);

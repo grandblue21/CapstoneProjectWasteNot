@@ -46,10 +46,10 @@ const Register = () => {
             // Set firestore instance
             FBApp.db.insert(COLLECTIONS.user, {
                 role: ROLES.customer,
-                user_id: userCredential.user.uid,
+                userId: userCredential.user.uid,
                 username: username,
-                first_name: firstName,
-                last_name: lastName,
+                firstName: firstName,
+                lastName: lastName,
                 address: address,
                 email: email
             });
