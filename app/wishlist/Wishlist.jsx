@@ -1,11 +1,13 @@
-import { StyleSheet, SafeAreaView, ScrollView, View, Text, Image, TextInput } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
 import Header from '../../components/common/header/Header';
 import Search from '../../components/home/search/Search';
 import { COLORS } from '../../constants';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const Wishlist = () => {
 
+    const router = useRouter();
     const wishlist = [
         {
             restaurant: 'RS1',
@@ -59,8 +61,12 @@ const Wishlist = () => {
                                                 <View style={ styles.ingredientHeader }>
                                                     <Text style={ styles.ingredientName }>{ ingredient.name }</Text>
                                                     <View style={ styles.actionContainer }>
-                                                        <FontAwesome name="pencil" style={ styles.editIcon } />
-                                                        <FontAwesome name="trash" style={ styles.deleteIcon } />
+                                                        <TouchableOpacity  onPress={ () => router.replace('/dashboard/Dashboard') }>
+                                                            <FontAwesome name="pencil" style={ styles.editIcon } />
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity>
+                                                            <FontAwesome name="trash" style={ styles.deleteIcon } />
+                                                        </TouchableOpacity>
                                                     </View>
                                                 </View>
                                                 <Text style={ styles.ingredientPrice }>Price: ₱ { ingredient.price } per Kg.</Text>

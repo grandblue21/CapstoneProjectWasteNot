@@ -50,7 +50,7 @@ const Market = () => {
                         restaurants.map((restaurant, index) => (
                             <TouchableOpacity key={ index } style={ styles.restaurant } onPress={ () => router.replace(`/restaurant/market/${restaurant.id}`) }>
 
-                                <Image src={ 'https://img.freepik.com/premium-vector/catering-quality-food-design-logo_187482-593.jpg' } style={ styles.restaurantImage }/>
+                                <Image src={ restaurant.restaurantLogo } style={ styles.restaurantImage }/>
 
                                 <Text style={ styles.restaurantName }>{ restaurant.restaurantName }</Text>
 

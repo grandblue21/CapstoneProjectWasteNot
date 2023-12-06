@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import { useGlobalSearchParams } from 'expo-router';
 import { COLORS, SIZES, COLLECTIONS } from '../../../constants';
 import Header from '../../../components/common/header/Header';
 import FirebaseApp from '../../../helpers/FirebaseApp';
 import { useRouter } from 'expo-router';
+import getProfile from '../../../hook/getProfile';
 
 const Ingredient = () => {
 
@@ -12,6 +13,7 @@ const Ingredient = () => {
     const { id } = useGlobalSearchParams();
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
+    const { profile } = getProfile();
     const handleConfirm = async () => {
 
         try {
@@ -20,19 +22,26 @@ const Ingredient = () => {
             const FBApp = new FirebaseApp();
             
             // Insert
-            await FBApp.db.insert(COLLECTIONS.ingredients, {
-                id: data,
+            const result = await FBApp.db.insert(COLLECTIONS.ingredients, {
+                id: id,
                 name: name,
                 category: 'Meat',
+                price: price,
                 stock: 69,
-                image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1'
+                image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1',
+                restaurantId: profile.adminId
             });
+
+            // Check if added
+            if (!result) {
+                throw 'Wala ma add';
+            }
 
             // Show notif
             ToastAndroid.showWithGravity('Ingredient Added', ToastAndroid.LONG, ToastAndroid.TOP);
 
             // Redirect to ingredients
-            router.replace('/app/inventory/Inventory');
+            router.replace('/inventory/Inventory');
         }
         catch (error) {
             console.log(error);

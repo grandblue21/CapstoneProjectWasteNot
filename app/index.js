@@ -9,7 +9,7 @@ const App = () => {
     // Check Session
     const session = getProfile();
 
-    return session.profile.role ? (session.profile.role == ROLES.customer ? <Dashboard/> : <StaffDashboard/>) : <Login/>;
+    return session.profile && session.profile.role ? (session.profile.role == ROLES.customer ? <Dashboard/> : <StaffDashboard/>) : <Login/>;
 }
 
 export default App;

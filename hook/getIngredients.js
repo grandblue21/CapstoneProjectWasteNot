@@ -8,7 +8,7 @@ const getIngredients = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchData = async () => {
+    const fetchData = async (filter = null) => {
         
         setIsLoading(true);
 
@@ -16,7 +16,7 @@ const getIngredients = () => {
             // Set FireBase App Instance
             const FBApp = new FirebaseApp();
 
-            const data = await FBApp.db.gets(COLLECTIONS.ingredients);
+            const data = await FBApp.db.gets(COLLECTIONS.ingredients, filter);
 
             setIngredients(data);
 

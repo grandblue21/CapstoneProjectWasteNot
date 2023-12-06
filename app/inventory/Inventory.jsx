@@ -7,31 +7,22 @@ import { useRouter } from 'expo-router';
 import Categories from '../../components/common/navigation/Categories';
 import Navigation from '../../components/common/navigation/Navigation';
 import getIngredients from '../../hook/getIngredients';
+import getProfile from '../../hook/getProfile';
+import { CATEGORIES } from '../../constants';
 
 const Inventory = () => {
 
     const router = useRouter();
 
+    const { profile } = getProfile();
     const [selectedCategory, setSelectedCategory] = useState(0);
-    const categories = ['All', 'Meat', 'Vegetables', 'Spices'];
-    const { ingredients, isLoading } = getIngredients();
-    const inventoryList = [
-        { name: 'Item 1', category: 'Meat', stock: 20, image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' },
-        { name: 'Item 2', category: 'Vegetables', stock: 5, image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' },
-        { name: 'Item 3', category: 'Spices', stock: 0, image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' },
-        { name: 'Item 4', category: 'Spices', stock: 8, image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' },
-        { name: 'Item 5', category: 'Vegetables', stock: 15, image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg' },
-        { name: 'Item 6', category: 'Meat', stock: 0, image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml' },
-        { name: 'Item 7', category: 'Meat', stock: 10, image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml' },
-        { name: 'Item 8', category: 'Meat', stock: 5, image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg' },
-        // Add more data as needed
-    ];
-    const [inventoryItems, setInventoryItems] = useState(inventoryList);
+    const { ingredients, isLoading } = getIngredients(profile.restaurantId);
+    const [inventoryItems, setInventoryItems] = useState([]);
 
     const handleCategoryChange = (index, category) => {
         setSelectedCategory(index);
         setInventoryItems(ingredients.filter((x) => (
-            (category != categories[0] && x.category == category) || category == categories[0]
+            (category != 'All' && x.category == category) || category == 'All'
         )));
     };
 
@@ -46,7 +37,7 @@ const Inventory = () => {
             <View style={ styles.body }>
                 <Text style={ styles.txtHeader }>Everything you need</Text>
                 <View style={ styles.contentContainer }>
-                    <Categories categories={ categories } onCategoryChange={ handleCategoryChange } />
+                    <Categories categories={ ['All', ...CATEGORIES] } onCategoryChange={ handleCategoryChange } />
 
                     {/* Header Label */}
                     <View style={ styles.headerLabelContainer }>

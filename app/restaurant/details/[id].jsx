@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, View, Text, StyleSheet, Image } from 'react-native';
-import Header from '../../components/common/header/Header';
-import { FONT, COLORS, SIZES } from '../../constants';
+import Header from '../../../components/common/header/Header';
+import { FONT, COLORS, SIZES, COLLECTIONS } from '../../../constants';
 import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
+import { useGlobalSearchParams } from 'expo-router';
+import FirebaseApp from '../../../helpers/FirebaseApp';
 
 const Indent = () => '\t\t\t\t';
 
@@ -19,14 +22,25 @@ const Rating = ({ rate }) => {
 
 const RestaurantDetails = () => {
 
+    const { id } = useGlobalSearchParams();
     const router = useRouter();
+    const FBApp = new FirebaseApp();
+    const [restaurant, setRestaurant] = useState({});
 
-    const rating = 4;
+    useEffect(() => {
+        
+        const get_restaurant = async () => {
+            setRestaurant(await FBApp.db.get_from_ref(COLLECTIONS.restaurants, id));
+        }
+
+        get_restaurant();
+
+    }, []);
     
     return (
         <SafeAreaView style={ styles.container }>
 
-            <Header hideTitle={ true } hideNotification={ true } showBack={{ show: true, handleBack: () => router.replace(`'/restaurant/market/${1}'`) }}/>
+            <Header hideTitle={ true } hideNotification={ true } showBack={{ show: true, handleBack: () => router.replace(`/restaurant/market/${id}`) }}/>
 
             <ScrollView style={ styles.body }>
 
@@ -35,8 +49,8 @@ const RestaurantDetails = () => {
                 </View>
 
                 <View style={ styles.restaurantContainer }>
-                    <Image source={{ uri: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg' }} style={ styles.restaurantImage }/>
-                    <Text style={ styles.restaurantName } numberOfLines={ 2 } ellipsizeMode="tail">Restaurant Sample</Text>
+                    <Image src={ restaurant.restaurantLogo } style={ styles.restaurantImage }/>
+                    <Text style={ styles.restaurantName } numberOfLines={ 2 } ellipsizeMode="tail">{ restaurant.restaurantName }</Text>
                 </View>
 
                 <View style={ styles.restaurantInfoContainer }>
@@ -45,7 +59,7 @@ const RestaurantDetails = () => {
                         <Text style={ styles.infoTitle }>About</Text>
                         <Text style={ styles.infoText }>
                             <Indent/>
-                            Welcome to Restaurant Sample #1, where culinary excellence meets warm hospitality. Step into a world of delectable flavors and unforgettable dining experiences. Nestled in the heart of Bacayan Cebu City, our restaurant is a haven for food enthusiasts seeking a remarkable gastronomic journey.
+                            { restaurant.restaurantDesc ?? 'Not Specified' }
                         </Text>
                     </View>
 
@@ -53,14 +67,14 @@ const RestaurantDetails = () => {
                         <Text style={ styles.infoTitle }>Location</Text>
                         <Text style={ styles.infoText }>
                             <Indent/>
-                            Bacayan Cebu City
+                            { restaurant.restaurantAddress ?? 'Not Specified' }
                         </Text>
                     </View>
 
                     <View style={ styles.info }>
                         <Text style={ styles.infoTitle }>Ratings</Text>
                         <View style={ styles.ratingContainer }>
-                            <Rating rate={ rating } />
+                            <Rating rate={ restaurant.restaurantRating } />
                         </View>
                     </View>
 
@@ -121,7 +135,7 @@ const styles = StyleSheet.create({
     },
     infoText: {
         fontSize: 15,
-        textAlign: 'justify',
+        textAlign: 'justify'
     },
     ratingContainer: {
         flexDirection: 'row',
