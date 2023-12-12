@@ -1,7 +1,8 @@
 const COLLECTIONS = {
     user: 'users',
     chat: 'chatbot_conversation',
-    ingredients: 'ingredients',
+    market_request: 'market_request',
+    ingredients: 'sale_items',
     restaurants: 'admin_users'
 }
 

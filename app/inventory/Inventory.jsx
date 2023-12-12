@@ -16,7 +16,7 @@ const Inventory = () => {
 
     const { profile } = getProfile();
     const [selectedCategory, setSelectedCategory] = useState(0);
-    const { ingredients, isLoading } = getIngredients(profile.restaurantId);
+    const { ingredients, isLoading } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [inventoryItems, setInventoryItems] = useState([]);
 
     const handleCategoryChange = (index, category) => {
@@ -58,19 +58,19 @@ const Inventory = () => {
                                     <View
                                         style={ [
                                             styles.statusIndicator,
-                                            { backgroundColor: item.stock >= 10 ? 'green' : item.stock > 0 ? 'yellow' : 'red' },
+                                            { backgroundColor: item.item_quantity >= 10 ? 'green' : (item.item_quantity > 0 ? 'yellow' : 'red') },
                                         ] }
                                     />
                                     {/* Item Name and Picture */}
                                     <View style={ styles.itemInfoContainer }>
                                         <Image source={{ uri: item.image }} style={ styles.itemImage } />
                                         <View style={ styles.itemDetails }>
-                                            <Text style={ styles.itemName }>{ item.name }</Text>
+                                            <Text style={ styles.itemName }>{ item.Item_name }</Text>
                                         </View>
                                     </View>
                                     {/* In Stock Label with kilograms */}
-                                    <Text style={ styles.inStockLabel }>{`${item.stock} kg`}</Text>
-                                    <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace('/ingredient/History') }>
+                                    <Text style={ styles.inStockLabel }>{`${ item.item_quantity ?? 0 } kg`}</Text>
+                                    <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/ingredient/history/${item.Item_id}`) }>
                                         <AntDesign name="doubleright" size={ 20 } color="#389F4F" />
                                     </TouchableOpacity>
                                 </View>

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import { useGlobalSearchParams } from 'expo-router';
-import { COLORS, SIZES, COLLECTIONS } from '../../../constants';
+import { COLORS, SIZES, COLLECTIONS, CATEGORIES } from '../../../constants';
 import Header from '../../../components/common/header/Header';
 import FirebaseApp from '../../../helpers/FirebaseApp';
 import { useRouter } from 'expo-router';
 import getProfile from '../../../hook/getProfile';
+import DropDownPicker from 'react-native-dropdown-picker';
+import moment from 'moment/moment';
 
 const Ingredient = () => {
 
@@ -14,6 +16,10 @@ const Ingredient = () => {
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const { profile } = getProfile();
+    const [open, setOpen] = useState(false);
+    const [category, setCategory] = useState(null);
+    const [items, setItems] = useState(CATEGORIES.map(x => ({ label: x, value: x })));
+
     const handleConfirm = async () => {
 
         try {
@@ -22,14 +28,13 @@ const Ingredient = () => {
             const FBApp = new FirebaseApp();
             
             // Insert
-            const result = await FBApp.db.insert(COLLECTIONS.ingredients, {
-                id: id,
-                name: name,
-                category: 'Meat',
+            const result = await FBApp.db.insert(COLLECTIONS.market_request, {
+                MarketId: id,
+                item_Id: name,
+                Category: category,
+                Date: moment().format('YYYY-MM-DD'),
                 price: price,
-                stock: 69,
-                image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1',
-                restaurantId: profile.adminId
+                Staff_id: profile.id
             });
 
             // Check if added
@@ -44,7 +49,6 @@ const Ingredient = () => {
             router.replace('/inventory/Inventory');
         }
         catch (error) {
-            console.log(error);
 
             // Show notif
             ToastAndroid.showWithGravity('Failed to add ingredient', ToastAndroid.LONG, ToastAndroid.TOP);
@@ -67,6 +71,19 @@ const Ingredient = () => {
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>ID:</Text>
                         <TextInput style={ styles.infoInput } value={ id } editable={ false }/>
+                    </View>
+
+                    <View style={ styles.infoItem }>
+                        <Text style={ { ...styles.infoLabel, width: '40%'} }>Category:</Text>
+                        <DropDownPicker
+                            open={ open }
+                            value={ category }
+                            items={ items }
+                            setOpen={ setOpen }
+                            setValue={ setCategory }
+                            setItems={ setItems }
+                            style={ styles.infoInput }
+                        />
                     </View>
 
                     <View style={ styles.infoItem }>
@@ -95,7 +112,8 @@ const Ingredient = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: SIZES.small
+        paddingTop: SIZES.small,
+        backgroundColor: '#FFF'
     },
     body: {
         flex: 1

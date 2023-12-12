@@ -17,7 +17,7 @@ const Restaurant = () => {
     const FBApp = new FirebaseApp();
     const [restaurant, setRestaurant] = useState({});
     const { ingredients } = getIngredients({
-        column: 'restaurantId',
+        column: 'Restaurant_id',
         comparison: '==',
         value: restaurant.id
     });
@@ -80,11 +80,11 @@ const Restaurant = () => {
 
                                     <View style={ styles.ingredientInfoContainer }>
                                         <View style={ styles.ingredientNameContainer }>
-                                            <Text style={ styles.ingredientName } numberOfLines={ 1 } ellipsizeMode="tail">{ ingredient.name }</Text>
+                                            <Text style={ styles.ingredientName } numberOfLines={ 1 } ellipsizeMode="tail">{ ingredient.Item_name }</Text>
                                             <Text style={ styles.ingredientLeft }>In store: { ingredient.quantity }kg</Text>
                                         </View>
                                         <View style={ styles.ingredientPriceContainer }>
-                                            <Text style={ styles.ingredientPrice }>₱{ ingredient.price.toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
+                                            <Text style={ styles.ingredientPrice }>₱{ (ingredient.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
                                             <Text style={ styles.ingredientPricePer }>per kg</Text>
                                         </View>
                                     </View>

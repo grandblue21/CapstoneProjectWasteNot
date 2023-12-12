@@ -10,6 +10,12 @@
         "expo-barcode-scanner", {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
         }
+      ],
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsVersion": "11.0.0"
+        }
       ]
     ],
     "name": "jobs",

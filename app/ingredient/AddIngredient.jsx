@@ -17,9 +17,7 @@ const AddIngredient = () => {
         const { status } = await BarCodeScanner.requestPermissionsAsync();
         setHasPermission(status === 'granted');
     };
-    const handleBarCodeScanned = async ({ type, data }) => {
-
-        alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    const handleBarCodeScanned = async ({ data }) => {
 
         setScanned(true);
 

@@ -56,7 +56,7 @@ const EditProfile = () => {
         setFirstName(profile.firstName);
         setLastName(profile.lastName);
         setEmail(profile.email);
-        setPhone(profile.phone);
+        setPhone(profile.contactNum);
         setAddress(profile.address);
     }, [profile]);
 

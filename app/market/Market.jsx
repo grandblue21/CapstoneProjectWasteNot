@@ -11,26 +11,6 @@ import getRestaurants from '../../hook/getRestaurants';
 const Market = () => {
 
     const { restaurants } = getRestaurants();
-
-    /* const restaurants = [
-        {
-            image: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg',
-            name: 'Chef Cooking'
-        },
-        {
-            image: 'https://marketplace.canva.com/EAFMme8qKdk/1/0/1600w/canva-modern-restaurant-bar-and-grill-food-logo-qG0JgcwrqHQ.jpg',
-            name: 'Modern Restaurant'
-        },
-        {
-            image: 'https://marketplace.canva.com/EAFYecj_1Sc/1/0/1600w/canva-cream-and-black-simple-elegant-catering-food-logo-2LPev1tJbrg.jpg',
-            name: 'Simple Elegant'
-        },
-        {
-            image: 'https://img.freepik.com/premium-vector/catering-quality-food-design-logo_187482-593.jpg',
-            name: 'Quality Food'
-        }
-    ]; */
-
     const router = useRouter();
 
     return (

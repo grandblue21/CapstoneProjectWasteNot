@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import FirebaseApp from '../helpers/FirebaseApp';
 import { COLLECTIONS } from '../constants';
 
-const getIngredients = () => {
+const getIngredients = (filter = null) => {
 
     const [ingredients, setIngredients] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchData = async (filter = null) => {
+    const fetchData = async () => {
         
         setIsLoading(true);
 

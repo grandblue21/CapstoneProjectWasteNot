@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
@@ -5,6 +6,40 @@ import { Stack, useRouter } from 'expo-router';
 import { COLORS } from '../../constants';
 import Navigation from '../../components/common/navigation/Navigation';
 import getProfile from '../../hook/getProfile';
+import { Button, Menu, Divider, Provider } from 'react-native-paper';
+
+const CustomDropdown = ({ items }) => {
+    const [visible, setVisible] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    const openMenu = () => setVisible(true);
+    const closeMenu = () => setVisible(false);
+
+    const handleMenuItemPress = (item) => {
+        setSelectedItem(item);
+        closeMenu();
+    };
+
+    return (
+        <Provider>
+            <View>
+                <Menu
+                    visible={visible}
+                    onDismiss={closeMenu}
+                    anchor={<Button onPress={openMenu}>{selectedItem ? selectedItem : 'Select Item'}</Button>}
+                >
+                    {
+                        items.map((item, index) => (
+                            <Menu.Item key={index} onPress={() => handleMenuItemPress(item)} title={item} />
+                        ))
+                    }
+                    <Divider />
+                    <Menu.Item onPress={() => handleMenuItemPress(null)} title="Clear" />
+                </Menu>
+            </View>
+        </Provider>
+    );
+};
 
 const Profile = () => {
 
@@ -50,7 +85,7 @@ const Profile = () => {
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Phone Number:</Text>
-                        <Text style={ styles.infoText }>{ profile.phone ? profile.contactNum : 'None' }</Text>
+                        <Text style={ styles.infoText }>{ profile.contactNum ? profile.contactNum : 'None' }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>

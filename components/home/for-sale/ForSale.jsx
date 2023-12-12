@@ -6,21 +6,6 @@ import getIngredients from '../../../hook/getIngredients';
 const ForSale = () => {
 
     const { ingredients: items } = getIngredients();
-    
-    /* const items = [
-        {
-            image: 'https://safeselect.ph/cdn/shop/products/BangusDagupan_1600x.jpg?v=1641871437' 
-        },
-        {
-            image: 'https://images.freshop.com/1564405684711055235/619524125e6ebec8ed25b52df19caff8_large.png'
-        },
-        {
-            image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fuemlg'
-        },
-        {
-            image: 'https://media.istockphoto.com/id/121137414/photo/small-garden-radish.jpg?s=612x612&w=0&k=20&c=jxRr1s4R4G-odm2BvPvDLuWN436086D98Ef6wiXQFQk='
-        }
-    ]; */
 
     return (
         <View style={styles.container}>
