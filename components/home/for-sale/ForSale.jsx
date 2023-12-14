@@ -1,11 +1,31 @@
+import { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
-import { COLORS, FONT, SIZES } from '../../../constants';
+import { COLORS, FONT, SIZES, COLLECTIONS } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
-import getIngredients from '../../../hook/getIngredients';
+import getSaleItems from '../../../hook/getSaleItems';
+import FirebaseApp from '../../../helpers/FirebaseApp';
 
 const ForSale = () => {
 
-    const { ingredients: items } = getIngredients();
+    const FBApp = new FirebaseApp();
+    const [items, setItems] = useState([]);
+    const { saleItems } = getSaleItems();
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            const ingredient = await FBApp.db.gets(COLLECTIONS.ingredients, {
+                column: 'ItemId',
+                comparison: 'in',
+                value: saleItems.map(x => x.Item_id)
+            });
+            
+            // Include to data
+            setItems(saleItems.map((item) => ({ ...item, image: ingredient.find(x => x.ItemId, item.Item_id).image })));
+        }
+
+        fetchData();
+    }, [saleItems]);
 
     return (
         <View style={styles.container}>

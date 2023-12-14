@@ -1,23 +1,46 @@
+import { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
-import { COLORS, FONT, SIZES } from '../../../constants';
+import { COLORS, FONT, SIZES, COLLECTIONS } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
+import getProfile from '../../../hook/getProfile';
+import getSaleItems from '../../../hook/getSaleItems';
+import { useRouter } from 'expo-router';
+import FirebaseApp from '../../../helpers/FirebaseApp';
 
 const SaleItems = () => {
 
-    const items = [
-        {
-            image: 'https://safeselect.ph/cdn/shop/products/BangusDagupan_1600x.jpg?v=1641871437' 
-        },
-        {
-            image: 'https://images.freshop.com/1564405684711055235/619524125e6ebec8ed25b52df19caff8_large.png'
-        },
-        {
-            image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fuemlg'
-        },
-        {
-            image: 'https://media.istockphoto.com/id/121137414/photo/small-garden-radish.jpg?s=612x612&w=0&k=20&c=jxRr1s4R4G-odm2BvPvDLuWN436086D98Ef6wiXQFQk='
+    const router = useRouter();
+    const FBApp = new FirebaseApp();
+    const { profile, isLoading } = getProfile();
+    const { saleItems, isLoading: isLSI, refetch } = getSaleItems({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+    const [items, setItems] = useState([]);
+
+    // Gets ingredients if profile and sale items are loaded
+    useEffect(() => {
+
+        const getData = async () => {
+            const items = await FBApp.db.gets(COLLECTIONS.ingredients, {
+                column: 'ItemId',
+                comparison: 'in',
+                value: saleItems.map(x => x.Item_id)
+            });
+            
+            // Include to data
+            setItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
         }
-    ];
+
+        // Get data if both are fetched
+        if (!isLoading && !isLSI) {
+            getData();
+        }
+    }, [isLoading, isLSI, saleItems]);
+
+    useEffect(() => {
+        // Refetch if profile is loaded
+        if (profile.adminId) {
+            refetch();
+        }
+    }, [profile.adminId]);
 
     return (
         <View style={styles.container}>
@@ -34,7 +57,7 @@ const SaleItems = () => {
                     data={ items }
                     renderItem={({ item }) => (
                         <TouchableOpacity>
-                            <Image source={{ uri: item.image }} style={styles.item} />
+                            <Image src={ item.data.image } style={styles.item} />
                         </TouchableOpacity>
                     )}
                     keyExtractor={(item, index) => index}

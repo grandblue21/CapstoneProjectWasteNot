@@ -6,11 +6,13 @@ import Header from '../../components/common/header/Header';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useRouter } from 'expo-router';
+import getProfile from '../../hook/getProfile';
 
 const AddIngredient = () => {
     
     const router = useRouter();
     const FBApp = new FirebaseApp();
+    const { profile } = getProfile();
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
     const getBarCodeScannerPermissions = async () => {
@@ -19,9 +21,23 @@ const AddIngredient = () => {
     };
     const handleBarCodeScanned = async ({ data }) => {
 
+        // Get Ingredient
+        const existing = await FBApp.db.gets(COLLECTIONS.ingredients, {
+            column: 'id',
+            comparison: '==',
+            value: data
+        });console.log(existing);
+
         setScanned(true);
 
-        router.replace(`/ingredient/add-from-scan/${data}`);
+        // New batch
+        if (existing.filter(x => x.restaurantId == profile.adminId).length > 0) {
+            router.replace(`/ingredient/history/${existing[0].id}`);
+        }
+        // Add
+        else {
+            router.replace(`/ingredient/add-from-scan/${data}`);
+        }
     };
 
     useEffect(() => {

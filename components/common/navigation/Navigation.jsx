@@ -38,7 +38,7 @@ const Navigation = ({ currentRoute, logout }) => {
         icon: 'home',
         name: 'Inventory',
         applicable_roles: [ROLES.staff],
-        navigate: () => router.replace('/inventory/Inventory')
+        navigate: () => router.replace('/inventory/Inventory', { restaurant: profile.adminId })
     }, {
         icon: 'shopping-basket',
         name: 'Market',

@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import Categories from '../../../components/common/navigation/Categories';
 import { useGlobalSearchParams } from 'expo-router';
 import FirebaseApp from '../../../helpers/FirebaseApp';
-import getIngredients from '../../../hook/getIngredients';
+import getSaleItems from '../../../hook/getSaleItems';
 
 const Restaurant = () => {
 
@@ -16,19 +16,37 @@ const Restaurant = () => {
     const router = useRouter();
     const FBApp = new FirebaseApp();
     const [restaurant, setRestaurant] = useState({});
-    const { ingredients } = getIngredients({
+    const { saleItems } = getSaleItems({
         column: 'Restaurant_id',
         comparison: '==',
-        value: restaurant.id
+        value: id
     });
-    const [ingredientList, setIngredientList] = useState(ingredients);
+    const [items, setItems] = useState([]);
+    const [itemsList, setItemsList] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(0);
     const handleCategoryChange = (index, category) => {
         setSelectedCategory(index);
-        setIngredientList(ingredients.filter((x) => (
-            (category != 'All' && x.category == category) || category == 'All'
+        setItems(itemsList.filter((x) => (
+            (category != 'All' && x.data.category == category) || category == 'All'
         )));
     };
+
+    // Sale Items Use Effect
+    useEffect(() => {
+
+        const fetchData = async () => {
+            const items = await FBApp.db.gets(COLLECTIONS.ingredients, {
+                column: 'ItemId',
+                comparison: 'in',
+                value: saleItems.map(x => x.Item_id)
+            });
+
+            setItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+            setItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+        }
+
+        fetchData();
+    }, [saleItems]);
 
     // Restaurant Use Effect
     useEffect(() => {
@@ -38,15 +56,6 @@ const Restaurant = () => {
 
         fetch_data();
     }, []);
-
-    // Ingredients Use Effect
-    useEffect(() => {
-        const fetch_data = async () => {
-            setIngredientList(ingredients);
-        }
-
-        fetch_data();
-    }, [ingredients]);
     
     return (
         <SafeAreaView style={ styles.container }>
@@ -73,18 +82,18 @@ const Restaurant = () => {
                     
                         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', flexWrap: 'wrap' }}>
                         {
-                            ingredientList.map((ingredient, index) => (
+                            items.map((ingredient, index) => (
                                 <TouchableOpacity key={ index } style={ styles.restaurantIngredient } onPress={ () => router.push('/restaurant/IngredientCart') }>
 
-                                    <Image source={{ uri: ingredient.image }} style={ styles.ingredientImage }/>
+                                    <Image src={ ingredient.data.image } style={ styles.ingredientImage }/>
 
                                     <View style={ styles.ingredientInfoContainer }>
                                         <View style={ styles.ingredientNameContainer }>
-                                            <Text style={ styles.ingredientName } numberOfLines={ 1 } ellipsizeMode="tail">{ ingredient.Item_name }</Text>
-                                            <Text style={ styles.ingredientLeft }>In store: { ingredient.quantity }kg</Text>
+                                            <Text style={ styles.ingredientName } numberOfLines={ 1 } ellipsizeMode="tail">{ ingredient.data.Item_name }</Text>
+                                            <Text style={ styles.ingredientLeft }>In store: { ingredient.Sale_quantity }kg</Text>
                                         </View>
                                         <View style={ styles.ingredientPriceContainer }>
-                                            <Text style={ styles.ingredientPrice }>₱{ (ingredient.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
+                                            <Text style={ styles.ingredientPrice }>₱{ (ingredient.Sale_price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
                                             <Text style={ styles.ingredientPricePer }>per kg</Text>
                                         </View>
                                     </View>

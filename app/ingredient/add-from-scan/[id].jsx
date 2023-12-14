@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ToastAndroid, Image } from 'react-native';
 import { useGlobalSearchParams } from 'expo-router';
 import { COLORS, SIZES, COLLECTIONS, CATEGORIES } from '../../../constants';
 import Header from '../../../components/common/header/Header';
@@ -8,38 +8,66 @@ import { useRouter } from 'expo-router';
 import getProfile from '../../../hook/getProfile';
 import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment/moment';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const Ingredient = () => {
 
     const router = useRouter();
     const { id } = useGlobalSearchParams();
     const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
+    const [quantity, setQuantity] = useState('');
+    const [expDate, setExpDate] = useState(new Date(moment().format('YYYY-MM-DD')));
     const { profile } = getProfile();
     const [open, setOpen] = useState(false);
     const [category, setCategory] = useState(null);
     const [items, setItems] = useState(CATEGORIES.map(x => ({ label: x, value: x })));
-
+    const [show, setShow] = useState(false);
+    const onChange = (event, selectedDate) => {
+        setExpDate(selectedDate);
+        setShow(false);
+    };
     const handleConfirm = async () => {
 
         try {
             
+            const data = {
+                ItemId: id,
+                Item_name: name,
+                item_quantity: quantity,
+                Restaurant_id: profile.adminId,
+                category: category,
+                image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images'
+            }
+
+            // Check data
+            Object.values(data).map((value) => {
+                if (!value) {
+                    throw 'Fill in required fields';
+                }
+            });
+            
             // Set Firebase Instance
             const FBApp = new FirebaseApp();
             
-            // Insert
-            const result = await FBApp.db.insert(COLLECTIONS.market_request, {
-                MarketId: id,
-                item_Id: name,
-                Category: category,
-                Date: moment().format('YYYY-MM-DD'),
-                price: price,
-                Staff_id: profile.id
-            });
+            // Insert Ingredient
+            const result = await FBApp.db.insert(COLLECTIONS.ingredients, data);
 
             // Check if added
             if (!result) {
-                throw 'Wala ma add';
+                throw 'Failed to add ingredient';
+            }
+
+            // Insert History
+            const history = await FBApp.db.insert(COLLECTIONS.ingredients_history, {
+                ItemId: id,
+                item_quantity: quantity,
+                Expiry_date: moment(expDate).format('YYYY-MM-DD'),
+                Date_added: moment().format('YYYY-MM-DD')
+            });
+
+            // Check if added
+            if (!history) {
+                throw 'Failed to add ingredient';
             }
 
             // Show notif
@@ -51,7 +79,7 @@ const Ingredient = () => {
         catch (error) {
 
             // Show notif
-            ToastAndroid.showWithGravity('Failed to add ingredient', ToastAndroid.LONG, ToastAndroid.TOP);
+            ToastAndroid.showWithGravity(error, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     };
 
@@ -63,7 +91,7 @@ const Ingredient = () => {
             <View style={ styles.body }>
 
                 <View style={ styles.imageContainer }>
-                    <View style={ styles.image }></View>
+                    <Image src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images" style={ styles.image }></Image>
                 </View>
 
                 <View style={ styles.infoContainer }>
@@ -82,6 +110,7 @@ const Ingredient = () => {
                             setOpen={ setOpen }
                             setValue={ setCategory }
                             setItems={ setItems }
+                            placeholder="Select Category"
                             style={ styles.infoInput }
                         />
                     </View>
@@ -92,15 +121,34 @@ const Ingredient = () => {
                     </View>
 
                     <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>Price:</Text>
-                        <TextInput style={ styles.infoInput } value={ price } placeholder="₱ 0.00" onChangeText={ (input) => setPrice(input) }/>
+                        <Text style={ styles.infoLabel }>Quantity:</Text>
+                        <TextInput style={ styles.infoInput } value={ quantity } placeholder="0" onChangeText={ (input) => setQuantity(input) }/>
+                    </View>
+
+                    <View style={ styles.infoItem }>
+                        <Text style={ styles.infoLabel }>Expiry:</Text>
+                        <TextInput style={ styles.infoInput } value={ moment(expDate).format('MMMM D, YYYY') } placeholder="Expiration Date" onChangeText={ (input) => setExpDate(input) } editable={ false} />
+                    </View>
+
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginRight: 20 }}>
+                        <TouchableOpacity onPress={ () => setShow(true) }>
+                            <Text>Show Calendar</Text>
+                            {(
+                                show && <DateTimePicker
+                                    value={ expDate }
+                                    mode="date"
+                                    minimumDate={ moment().toDate() }
+                                    onChange={ onChange }
+                                />
+                            )}
+                        </TouchableOpacity>
                     </View>
                 </View>
 
                 <View style={ styles.buttonContainer }>
                     <TouchableOpacity style={ styles.confirmButton } onPress={ handleConfirm }>
                         <Text style={ styles.buttonText }>Confirm</Text>
-                    </TouchableOpacity> 
+                    </TouchableOpacity>
                 </View>
 
             </View>

@@ -29,18 +29,6 @@ const Dashboard = () => {
                 <ForSale/>
 
                 <Chatbot/>
-            
-                <TouchableOpacity onPress={ async () => {
-
-                    const FBApp = new FirebaseApp();
-
-                    // Clear session
-                    await FBApp.session.remove('user');
-
-                    // Go to Login
-                    router.replace('/auth/Login');
-
-                } } style={{ marginBottom: 60, backgroundColor: 'red', alignItems: 'center', padding: 5, borderRadius: 5}}><Text style={{ color: '#FFF'}}>Logout</Text></TouchableOpacity>
 
             </ScrollView>
 

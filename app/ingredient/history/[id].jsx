@@ -3,75 +3,41 @@ import { StyleSheet, SafeAreaView, Text, View, ScrollView, Image, TouchableOpaci
 import Header from '../../../components/common/header/Header';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { COLORS } from '../../../constants';
+import { useRouter, useGlobalSearchParams } from 'expo-router';
+import { COLLECTIONS, COLORS } from '../../../constants';
 import moment from 'moment/moment';
+import FirebaseApp from '../../../helpers/FirebaseApp';
+import { FAB } from 'react-native-paper';
 
 const History = () => {
 
     const router = useRouter();
-    const history = [
-        {
-            quantity: 18,
-            date_added: '2023-06-02',
-            expiration_date: '2023-07-08'
-        },
-        {
-            quantity: 10,
-            date_added: '2023-07-07',
-            expiration_date: '2023-07-10'
-        },
-        {
-            quantity: 7,
-            date_added: '2023-07-10',
-            expiration_date: '2023-07-10'
-        },
-        {
-            quantity: 8,
-            date_added: '2023-07-14',
-            expiration_date: '2023-07-28'
-        },
-        {
-            quantity: 18,
-            date_added: '2023-06-02',
-            expiration_date: '2023-07-08'
-        },
-        {
-            quantity: 10,
-            date_added: '2023-07-07',
-            expiration_date: '2023-07-10'
-        },
-        {
-            quantity: 7,
-            date_added: '2023-07-10',
-            expiration_date: '2023-07-10'
-        },
-        {
-            quantity: 8,
-            date_added: '2023-07-14',
-            expiration_date: '2023-07-28'
-        },
-        {
-            quantity: 18,
-            date_added: '2023-06-02',
-            expiration_date: '2023-07-08'
-        },
-        {
-            quantity: 10,
-            date_added: '2023-07-07',
-            expiration_date: '2023-07-10'
-        },
-        {
-            quantity: 7,
-            date_added: '2023-07-10',
-            expiration_date: '2023-07-10'
-        },
-        {
-            quantity: 8,
-            date_added: '2023-07-14',
-            expiration_date: '2023-07-28'
+    const [ingredient, setIngredient] = useState({});
+    const [history, setHistory] = useState([]);
+    const FBApp = new FirebaseApp();
+    const { id } = useGlobalSearchParams();
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            setIngredient(await FBApp.db.get_from_ref(COLLECTIONS.ingredients, id));
         }
-    ];
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+
+        const fetchData = async () => {
+            setHistory(await FBApp.db.gets(COLLECTIONS.ingredients_history, {
+                column: 'ItemId',
+                comparison: '==',
+                value: ingredient.ItemId
+            }));
+        }
+
+        fetchData();
+    }, [ingredient]);
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -79,9 +45,9 @@ const History = () => {
             <View style={ styles.body }>
 
                 <View style={ styles.imageContainer }>
-                    <Image source={{ uri: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg' }} style={ styles.image }/>
+                    <Image src={ ingredient.image } style={ styles.image }/>
                 </View>
-                <Text style={ styles.ingredientName }>Rib Eye</Text>
+                <Text style={ styles.ingredientName }>{ ingredient.Item_name }</Text>
                 <View style={ styles.historyContainer }>
                     <View style={ styles.historyHeaderContainer }>
                         <Text style={ styles.historyLabel }>History</Text>
@@ -96,11 +62,11 @@ const History = () => {
                             history.map((x, index) => (
                                 <View key={ index } style={ styles.historyItem }>
                                     <View style={ styles.stockTextContainer }>
-                                        <Text style={ styles.stockText }>{ x.quantity }kg</Text>
+                                        <Text style={ styles.stockText }>{ x.item_quantity }kg</Text>
                                     </View>
                                     <View style={ styles.details }>
-                                        <Text style={ styles.detailText }>Date Added { moment(x.date_added).format('MMMM D, YYYY') }</Text>
-                                        <Text style={ styles.detailText }>Expiration Date: { moment(x.expiration_date).format('MMMM D, YYYY') }</Text>
+                                        <Text style={ styles.detailText }>Date Added { moment(x.Date_added).format('MMMM D, YYYY') }</Text>
+                                        <Text style={ styles.detailText }>Expiration Date: { moment(x.Expiry_date).format('MMMM D, YYYY') }</Text>
                                     </View>
                                     <View style={ styles.action }>
                                         <FontAwesome name="pencil" style={ styles.editAction } />
@@ -171,9 +137,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    history: {
-        marginBottom: 25
-    },
     historyItem: {
         borderTopWidth: 3,
         borderColor: COLORS.primary,
@@ -181,9 +144,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         flexDirection: 'row',
         justifyContent: 'space-between'
-    },
-    historyStockContainer: {
-
     },
     stockText: {
         fontSize: 30,

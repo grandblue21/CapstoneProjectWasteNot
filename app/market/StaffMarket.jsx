@@ -1,32 +1,64 @@
 import { StyleSheet, Text, View, ScrollView , FlatList, Image, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import Categories from '../../components/common/navigation/Categories';
 import { MaterialIcons,FontAwesome,AntDesign } from '@expo/vector-icons';
 import Header from '../../components/common/header/Header';
 import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
+import { CATEGORIES, COLLECTIONS } from '../../constants';
+import getSaleItems from '../../hook/getSaleItems';
+import getProfile from '../../hook/getProfile';
+import FirebaseApp from '../../helpers/FirebaseApp';
+import { useRouter } from 'expo-router';
 
 const MarketScreen = () => {
-    const [selectedCategory, setSelectedCategory] = useState(0);
-    const categories = ['All', 'Top Selling', 'Meat', 'Vegetables', 'Spices'];
-    const marketItemsList = [
-        { id: 1, category: 'Top Selling', name: 'LumpiaTS', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 2, category: 'Meat', name: 'LumpiaM', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 3, category: 'Meat', name: 'LumpiaM', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 4, category: 'Vegetables', name: 'LumpiaV', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 5, category: 'Spices', name: 'LumpiaS', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 6, category: 'Spices', name: 'LumpiaS', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 7, category: 'Meat', name: 'LumpiaM', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-        { id: 8, category: 'Top Selling', name: 'LumpiaTS', img: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1', price: '2,500',stock:10 },
-    ];
-    const [marketItems, setMarketItems] = useState(marketItemsList);
 
+    const router = useRouter();
+    const FBApp = new FirebaseApp();
+    const [selectedCategory, setSelectedCategory] = useState(0);
+    const { profile, isLoading } = getProfile();
+    const { saleItems, isLSI, refetch } = getSaleItems({
+        column: 'Restaurant_id',
+        comparison: '==',
+        value: profile.adminId
+    });
+    const [marketItems, setMarketItems] = useState([]);
+    const [marketItemsList, setMarketItemsList] = useState([]);
     const handleCategoryChange = (index, category) => {
         setSelectedCategory(index);
         setMarketItems(marketItemsList.filter((x) => (
-            (category != categories[0] && x.category == category) || category == categories[0]
+            (category != 'All' && x.data.category == category) || category == 'All'
         )));
     };
+
+    // Gets ingredients if profile and sale items are loaded
+    useEffect(() => {
+
+        const getData = async () => {
+            const items = await FBApp.db.gets(COLLECTIONS.ingredients, {
+                column: 'ItemId',
+                comparison: 'in',
+                value: saleItems.map(x => x.Item_id)
+            });
+            
+            // Include to data
+            setMarketItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+            setMarketItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+        }
+
+        // Get data if both are fetched
+        if (!isLoading && !isLSI) {
+            getData();
+        }
+    }, [isLoading, isLSI, saleItems]);
+
+    // Fetches sale items if profile is loaded
+    useEffect(() => {
+        // Refetch if profile is loaded
+        if (profile.adminId) {
+            refetch();
+        }
+    }, [profile.adminId]); 
 
     return (
         <View style={ styles.container }>
@@ -34,7 +66,7 @@ const MarketScreen = () => {
             <Search/>
             <View style={ styles.body }>
                 <View style={ styles.contentContainer }>
-                    <Categories categories={ categories} onCategoryChange={ handleCategoryChange } />
+                    <Categories categories={ ['All', ...CATEGORIES] } onCategoryChange={ handleCategoryChange } />
                     <FlatList
                         showsVerticalScrollIndicator={ false }
                         data={ marketItems }
@@ -43,7 +75,7 @@ const MarketScreen = () => {
                         renderItem={ ({ item }) => (
                             <View style={ styles.marketItem }>
                                 <View style={ styles.marketItemContainer }>
-                                    <Image source={{ uri: item.img }} style={ styles.marketImage } />
+                                    <Image src={ item.data.image } style={ styles.marketImage } />
                                     <View style={ styles.iconContainer }>
                                         <TouchableOpacity>
                                             <View style={ styles.iconBackground }>
@@ -57,17 +89,17 @@ const MarketScreen = () => {
                                         </TouchableOpacity>
                                     </View>
                                         <View style={ styles.itemInfoContainer }>
-                                        <Text style={ styles.marketName }>{ item.name }</Text>
-                                        <Text style={ styles.marketStock }>In Store: { item.stock } kg</Text>
+                                        <Text style={ styles.marketName }>{ item.data.Item_name }</Text>
+                                        <Text style={ styles.marketStock }>In Store: { item.Sale_quantity } kg</Text>
                                     </View>
-                                    <Text style={ styles.marketPrice }>₱{ item.price } per kg</Text>
+                                    <Text style={ styles.marketPrice }>₱{ item.Sale_price } per kg</Text>
                                 </View>
                             </View>
                         )}
                     />
                 </View>
                 
-                <TouchableOpacity style={ styles.plusButton }>
+                <TouchableOpacity style={ styles.plusButton } onPress={ () => router.replace('/market/AddSaleItem') }>
                     <View style={ styles.plusButtonInner }>
                         <AntDesign name="pluscircle" size={ 50 } color="#389F4F" />
                     </View>

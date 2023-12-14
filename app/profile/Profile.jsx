@@ -1,42 +1,52 @@
 import { useState } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import ScreenHeaderBtn from '../../components/common/header/ScreenHeaderBtn';
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { COLORS } from '../../constants';
 import Navigation from '../../components/common/navigation/Navigation';
 import getProfile from '../../hook/getProfile';
-import { Button, Menu, Divider, Provider } from 'react-native-paper';
+import { Menu, Divider, Provider } from 'react-native-paper';
+import FirebaseApp from '../../helpers/FirebaseApp';
 
-const CustomDropdown = ({ items }) => {
+const CustomDropdown = () => {
+
+    const router = useRouter();
     const [visible, setVisible] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
+    const handleMenuItemPress = async (item) => {
 
-    const handleMenuItemPress = (item) => {
-        setSelectedItem(item);
+        switch (item) {
+            case 'logout':
+
+                const FBApp = new FirebaseApp();
+
+                // Clear session
+                await FBApp.session.remove('user');
+
+                // Go to Login
+                router.replace('/auth/Login');
+
+                break;
+        }
+
         closeMenu();
     };
 
     return (
         <Provider>
-            <View>
-                <Menu
-                    visible={visible}
-                    onDismiss={closeMenu}
-                    anchor={<Button onPress={openMenu}>{selectedItem ? selectedItem : 'Select Item'}</Button>}
-                >
-                    {
-                        items.map((item, index) => (
-                            <Menu.Item key={index} onPress={() => handleMenuItemPress(item)} title={item} />
-                        ))
-                    }
-                    <Divider />
-                    <Menu.Item onPress={() => handleMenuItemPress(null)} title="Clear" />
-                </Menu>
-            </View>
+            <Menu
+                visible={ visible }
+                onDismiss={ closeMenu }
+                anchor={(
+                    <TouchableOpacity onPress={ openMenu }>
+                        <FontAwesome name="gear" style={{ fontSize: 24, color: COLORS.primary }}/>
+                    </TouchableOpacity>
+                )}
+            >
+                <Menu.Item onPress={ () => handleMenuItemPress('logout') } title="Logout" style={{ backgroundColor: '#FFF' }} titleStyle={{ fontWeight: 'bold', color: 'red' }}/>
+            </Menu>
         </Provider>
     );
 };
@@ -64,9 +74,11 @@ const Profile = () => {
             }}/>
 
             <View style={ styles.body }>
-                
                 <View style={ styles.imageContainer }>
-                    <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/666/666201.png' }} style={ styles.image }/>
+                    <TouchableOpacity>
+                        <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/666/666201.png' }} style={ styles.image }/>
+                    </TouchableOpacity>
+                    <CustomDropdown/>
                 </View>
 
                 <Text style={ styles.nameHeader }>{ [profile.firstName, profile.lastName].join(' ') }</Text>

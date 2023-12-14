@@ -8,15 +8,16 @@ import Categories from '../../components/common/navigation/Categories';
 import Navigation from '../../components/common/navigation/Navigation';
 import getIngredients from '../../hook/getIngredients';
 import getProfile from '../../hook/getProfile';
-import { CATEGORIES } from '../../constants';
+import { CATEGORIES, COLLECTIONS } from '../../constants';
+import FirebaseApp from '../../helpers/FirebaseApp';
 
 const Inventory = () => {
 
     const router = useRouter();
-
-    const { profile } = getProfile();
+    const FBApp = new FirebaseApp();
+    const { profile, isLoading } = getProfile();
     const [selectedCategory, setSelectedCategory] = useState(0);
-    const { ingredients, isLoading } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+    const { ingredients, isLoading: isLI, refetch } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [inventoryItems, setInventoryItems] = useState([]);
 
     const handleCategoryChange = (index, category) => {
@@ -27,8 +28,32 @@ const Inventory = () => {
     };
 
     useEffect(() => {
-        setInventoryItems(ingredients);
-    }, [isLoading]);
+
+        const fetchData = async () => {
+            setInventoryItems(await Promise.all(ingredients.map(async (ingredient) => {
+                // Get History
+                const history = await FBApp.db.gets(COLLECTIONS.ingredients_history, {
+                    column: 'ItemId',
+                    comparison: '==',
+                    value: ingredient.ItemId
+                });
+
+                return { ...ingredient, stock: (history.length > 0 ? history.reduce((total, current) => total + parseInt(current.item_quantity), 0) : 0) }
+            })));
+        }
+
+        // Check if both profile and ingredients data have been loaded
+        if (!isLoading && !isLI) {
+            fetchData();
+        }
+    }, [isLoading, isLI, ingredients]);
+
+    useEffect(() => {
+        // Refetch if profile is loaded
+        if (profile.adminId) {
+            refetch();
+        }
+    }, [profile.adminId]);
 
     return (
         <View style={ styles.container }>
@@ -58,7 +83,7 @@ const Inventory = () => {
                                     <View
                                         style={ [
                                             styles.statusIndicator,
-                                            { backgroundColor: item.item_quantity >= 10 ? 'green' : (item.item_quantity > 0 ? 'yellow' : 'red') },
+                                            { backgroundColor: item.stock >= 10 ? 'green' : (item.stock > 0 ? 'yellow' : 'red') },
                                         ] }
                                     />
                                     {/* Item Name and Picture */}
@@ -69,8 +94,8 @@ const Inventory = () => {
                                         </View>
                                     </View>
                                     {/* In Stock Label with kilograms */}
-                                    <Text style={ styles.inStockLabel }>{`${ item.item_quantity ?? 0 } kg`}</Text>
-                                    <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/ingredient/history/${item.Item_id}`) }>
+                                    <Text style={ styles.inStockLabel }>{`${ item.stock ?? 0 } kg`}</Text>
+                                    <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/ingredient/history/${item.id}`) }>
                                         <AntDesign name="doubleright" size={ 20 } color="#389F4F" />
                                     </TouchableOpacity>
                                 </View>

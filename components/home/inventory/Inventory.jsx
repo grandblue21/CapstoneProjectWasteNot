@@ -1,23 +1,23 @@
+import { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { COLORS, FONT, SIZES } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
+import getProfile from '../../../hook/getProfile';
+import getIngredients from '../../../hook/getIngredients';
+import { useRouter } from 'expo-router';
 
 const Inventory = () => {
 
-    const items = [
-        {
-            image: 'https://i0.wp.com/davaogroceriesonline.com/wp-content/uploads/2020/04/Hunts_Pork_Beans_230G_1024x1024.png?fit=600%2C600&ssl=1' 
-        },
-        {
-            image: 'https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg'
-        },
-        {
-            image: 'https://embed.widencdn.net/img/beef/ng96sbyljl/800x600px/Ribeye%20Steak_Lip-on.psd?keep=c&u=7fueml'
-        },
-        {
-            image: 'https://anitalianinmykitchen.com/wp-content/uploads/2020/05/pasta-sq-1-of-1-1.jpg'
+    const router = useRouter();
+    const { profile, isLoading } = getProfile();
+    const { ingredients, refetch } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+
+    useEffect(() => {
+        // Refetch if profile is loaded
+        if (profile.adminId) {
+            refetch();
         }
-    ];
+    }, [profile.adminId]);
 
     return (
         <>
@@ -31,10 +31,10 @@ const Inventory = () => {
 
             <View style={styles.inventoryContainer}>
                 <FlatList
-                    data={ items }
+                    data={ ingredients }
                     renderItem={({ item }) => (
-                        <TouchableOpacity>
-                            <Image source={{ uri: item.image }} style={styles.inventory} />
+                        <TouchableOpacity onPress={ () => router.replace(`/ingredient/history/${item.id}`) }>
+                            <Image src={ item.image } style={styles.inventory} />
                         </TouchableOpacity>
                     )}
                     keyExtractor={(item, index) => index}
