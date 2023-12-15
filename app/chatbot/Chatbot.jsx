@@ -65,11 +65,11 @@ const Chatbot = () => {
         // Request options
         const options = {
             method: 'POST',
-            url: 'https://chatgpt-openai.p.rapidapi.com/chat-completion',
+            url: 'https://open-ai21.p.rapidapi.com/conversationgpt35',
             headers: {
-                'content-type': 'application/json',
-                'X-RapidAPI-Key': 'afab6284a5mshae6dd43c22e53a1p14328bjsn3e3a0c4e172d',
-                'X-RapidAPI-Host': 'chatgpt-openai.p.rapidapi.com'
+              'content-type': 'application/json',
+              'X-RapidAPI-Key': '98aa04f06cmsh08fad60df460757p169c40jsn26176e1834b4',
+              'X-RapidAPI-Host': 'open-ai21.p.rapidapi.com'
             },
             data: {
                 messages: conversation.map(x => ({
