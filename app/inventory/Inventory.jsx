@@ -19,10 +19,11 @@ const Inventory = () => {
     const [selectedCategory, setSelectedCategory] = useState(0);
     const { ingredients, isLoading: isLI, refetch } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [inventoryItems, setInventoryItems] = useState([]);
+    const [inItemWStock, setInItemWStock] = useState([]);
 
     const handleCategoryChange = (index, category) => {
         setSelectedCategory(index);
-        setInventoryItems(ingredients.filter((x) => (
+        setInventoryItems(inItemWStock.filter((x) => (
             (category != 'All' && x.category == category) || category == 'All'
         )));
     };
@@ -30,7 +31,7 @@ const Inventory = () => {
     useEffect(() => {
 
         const fetchData = async () => {
-            setInventoryItems(await Promise.all(ingredients.map(async (ingredient) => {
+            const with_stock = await Promise.all(ingredients.map(async (ingredient) => {
                 // Get History
                 const history = await FBApp.db.gets(COLLECTIONS.ingredients_history, {
                     column: 'ItemId',
@@ -39,7 +40,9 @@ const Inventory = () => {
                 });
 
                 return { ...ingredient, stock: (history.length > 0 ? history.reduce((total, current) => total + parseInt(current.item_quantity), 0) : 0) }
-            })));
+            }));
+            setInventoryItems(with_stock);
+            setInItemWStock(with_stock);
         }
 
         // Check if both profile and ingredients data have been loaded
@@ -47,7 +50,7 @@ const Inventory = () => {
             fetchData();
         }
     }, [isLoading, isLI, ingredients]);
-
+    
     useEffect(() => {
         // Refetch if profile is loaded
         if (profile.adminId) {
@@ -94,7 +97,7 @@ const Inventory = () => {
                                         </View>
                                     </View>
                                     {/* In Stock Label with kilograms */}
-                                    <Text style={ styles.inStockLabel }>{`${ item.stock ?? 0 } kg`}</Text>
+                                    <Text style={ styles.inStockLabel }>{ item.stock }kg</Text>
                                     <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/ingredient/history/${item.id}`) }>
                                         <AntDesign name="doubleright" size={ 20 } color="#389F4F" />
                                     </TouchableOpacity>

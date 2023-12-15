@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getFirestore, addDoc, collection, getDoc, getDocs, updateDoc, query, where, limit, orderBy } from 'firebase/firestore';
+import { doc, getFirestore, addDoc, collection, getDoc, getDocs, updateDoc, deleteDoc, query, where, limit, orderBy } from 'firebase/firestore';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -162,9 +162,21 @@ class FirebaseApp {
             }
 
             return false;
-        }
+        },
         
+        delete: async (collectionName, filter) => {
 
+            try {
+                await deleteDoc(doc(this.firestore(), collectionName, filter));
+
+                return true;
+            }
+            catch (error) {
+                console.log(error);
+            }
+
+            return false;
+        }
     }
 
     // Session Helper
@@ -178,8 +190,8 @@ class FirebaseApp {
                 await ReactNativeAsyncStorage.setItem(key, value);
 
                 return key;
-
-            } catch (error) {
+            }
+            catch (error) {
                 console.log('Session Set Error: ', error);
             }
 
@@ -195,7 +207,8 @@ class FirebaseApp {
 
                 return item;
 
-            } catch (error) {
+            }
+            catch (error) {
                 console.log('Session Get Error: ', error);
             }
 
@@ -211,7 +224,8 @@ class FirebaseApp {
 
                 return item;
 
-            } catch (error) {
+            }
+            catch (error) {
                 console.log('Session Remove Error: ', error);
             }
 
@@ -227,7 +241,8 @@ class FirebaseApp {
 
                 return true;
                 
-            } catch (error) {
+            }
+            catch (error) {
                 console.log('Session Clear Error: ', error);
             }
 

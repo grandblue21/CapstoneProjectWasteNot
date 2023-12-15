@@ -5,7 +5,8 @@ const COLLECTIONS = {
     market_request: 'market_request',
     ingredients: 'inventory',
     ingredients_history: 'ingredients_history',
-    sale_items: 'sale_items'
+    sale_items: 'sale_items',
+    menu: 'menu_dish'
 }
 
 const ROLES = {
@@ -27,4 +28,15 @@ const CATEGORIES = [
     'Sweeteners'
 ]
 
-export { COLLECTIONS, ROLES, CATEGORIES };
+const MENU_CATEGORIES = [
+    'Main Dish',
+     'Appetizer',
+     'Breakfast Food',
+     'Dessert',
+     'Restaurant Specials',
+     'Kiddy Meals',
+     'Drinks and Beverages',
+     'Salads'
+]
+
+export { COLLECTIONS, ROLES, CATEGORIES, MENU_CATEGORIES };

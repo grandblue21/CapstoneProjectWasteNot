@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, View, ScrollView, Image, TouchableOpacity, Alert, ToastAndroid } from 'react-native';
 import Header from '../../../components/common/header/Header';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -36,7 +36,10 @@ const History = () => {
             }));
         }
 
-        fetchData();
+        // Fetch if there is Item
+        if (ingredient.ItemId) {
+            fetchData();
+        }
     }, [ingredient]);
 
     return (
@@ -51,7 +54,7 @@ const History = () => {
                 <View style={ styles.historyContainer }>
                     <View style={ styles.historyHeaderContainer }>
                         <Text style={ styles.historyLabel }>History</Text>
-                        <TouchableOpacity style={ styles.plusButton } onPress={ () => router.replace('/ingredient/AddIngredient') }>
+                        <TouchableOpacity style={ styles.plusButton } onPress={ () => router.replace(`/ingredient/add-batch/${id}`) }>
                             <View style={ styles.plusButtonInner }>
                                 <AntDesign name="pluscircle" size={ 40 } color="#389F4F" />
                             </View>
@@ -69,8 +72,41 @@ const History = () => {
                                         <Text style={ styles.detailText }>Expiration Date: { moment(x.Expiry_date).format('MMMM D, YYYY') }</Text>
                                     </View>
                                     <View style={ styles.action }>
-                                        <FontAwesome name="pencil" style={ styles.editAction } />
-                                        <FontAwesome name="trash" style={ styles.deleteAction } />
+                                        <TouchableOpacity onPress={ () => router.replace(`/ingredient/edit-batch/${x.id}`) }>
+                                            <FontAwesome name="pencil" style={ styles.editAction } />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={ () => (
+                                            Alert.alert(
+                                                'Remove batch',
+                                                'Are you sure you want to perform this action?',
+                                                [
+                                                    {
+                                                        text: 'Cancel',
+                                                        style: 'cancel',
+                                                    },
+                                                    {
+                                                        text: 'Remove',
+                                                        onPress: async () => {
+                                                            try {
+                                                                await FBApp.db.delete(COLLECTIONS.ingredients_history, x.id);
+
+                                                                // Remove from history
+                                                                setHistory(history.filter(y => y.id != x.id));
+
+                                                                // Show notif
+                                                                ToastAndroid.showWithGravity('Batch Removed', ToastAndroid.LONG, ToastAndroid.TOP);
+                                                            }
+                                                            catch (error) {
+                                                                console.log(error);
+                                                            }
+                                                        }
+                                                    }
+                                                ],
+                                                { cancelable: false }
+                                            )
+                                        )}>
+                                            <FontAwesome name="trash" style={ styles.deleteAction } />
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             ))

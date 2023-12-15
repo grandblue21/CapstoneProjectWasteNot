@@ -1,23 +1,28 @@
+import { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { COLORS, FONT, SIZES } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
+import getMenu from '../../../hook/getMenu';
+import getProfile from '../../../hook/getProfile';
 
 const TopDishes = () => {
 
-    const dishes = [
-        {
-            image: 'https://omnivorescookbook.com/wp-content/uploads/2020/12/201113_Lumpia-Shanghai_550.jpg' 
-        },
-        {
-            image: 'https://yummykitchentv.com/wp-content/uploads/2022/05/pork-steak-yummy-kitchen.jpg'
-        },
-        {
-            image: 'https://panlasangpinoy.com/wp-content/uploads/2012/06/Fried-Bangus-450x270.jpg'
-        },
-        {
-            image: 'https://assets.bonappetit.com/photos/5a6f48f94f860a026c60fd71/1:1/w_5111,h_5111,c_limit/pasta-carbonara.jpg'
+    const { profile } = getProfile();
+    const { menu } = getMenu();
+    const [menuList, setMenuList] = useState([]);
+
+    useEffect(() => {
+        
+        const fetchData = () => {
+            setMenuList(menu)
         }
-    ];
+
+        // Get menu if profile is loaded
+        if (!profile.isLoading && !menu.isLoading) {
+            fetchData();
+        }
+
+    }, [profile, menu]);
 
     return (
         <View style={styles.container}>
@@ -31,10 +36,10 @@ const TopDishes = () => {
 
             <View style={styles.dishContainer}>
                 <FlatList
-                    data={ dishes }
+                    data={ menuList }
                     renderItem={({ item }) => (
                         <TouchableOpacity>
-                            <Image source={{ uri: item.image }} style={styles.dish} />
+                            <Image src={ item.imageUrl ?? 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F282%2F282465.png&f=1&nofb=1&ipt=882638a8b113a96b2f827e92de88e9728c11378025d1842bb22cea7e21f37d9c&ipo=images' } style={styles.dish} />
                         </TouchableOpacity>
                     )}
                     keyExtractor={(item, index) => index}

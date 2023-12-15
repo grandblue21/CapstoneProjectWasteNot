@@ -26,13 +26,13 @@ const AddIngredient = () => {
             column: 'id',
             comparison: '==',
             value: data
-        });console.log(existing);
+        });
 
         setScanned(true);
 
         // New batch
         if (existing.filter(x => x.restaurantId == profile.adminId).length > 0) {
-            router.replace(`/ingredient/history/${existing[0].id}`);
+            router.replace(`/ingredient/add-batch/${existing[0].id}`);
         }
         // Add
         else {

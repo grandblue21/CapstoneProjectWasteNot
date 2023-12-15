@@ -1,37 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
 import Categories from '../../components/common/navigation/Categories';
 import Header from '../../components/common/header/Header';
 import { useRouter } from 'expo-router';
 import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
+import getProfile from '../../hook/getProfile';
+import getMenu from '../../hook/getMenu';
+import { COLLECTIONS, MENU_CATEGORIES } from '../../constants';
 
 const Menu = () => {
 
     const router = useRouter();
-
+    const { profile } = getProfile();
+    const { menu } = getMenu();
     const [selectedCategory, setSelectedCategory] = useState(0);
-    const categories = ['All', 'Grilled', 'Soup', 'Fried', 'Pasta', 'Dessert'];
-    const menuList = [{
-        category: 'Grilled',
-        name: 'Lumpia',
-        price: 2500,
-        img: 'https://yummykitchentv.com/wp-content/uploads/2022/05/pork-steak-yummy-kitchen.jpg'
-    }, {
-        category: 'Soup',
-        name: 'Sabaw',
-        price: 2500,
-        img: 'https://omnivorescookbook.com/wp-content/uploads/2020/12/201113_Lumpia-Shanghai_550.jpg'
-    }];
-
-    const [menu, setMenu] = useState(menuList);
-  
+    const [menuList, setMenuList] = useState(menu);
     const handleCategoryChange = (index, category) => {
-        setMenu(menuList.filter((x) => (
-            (category != categories[0] && x.category == category) || category == categories[0]
+        setSelectedCategory(category);
+        setMenuList(menu.filter((x) => (
+            (category != 'All' && x.category == category) || category == 'All'
         )));
     };
+
+    useEffect(() => {
+        
+        const fetchData = () => {
+            setMenuList(menu);
+        }
+
+        // Check if both are fetched
+        if (!profile.isLoading && !menu.isLoading) {
+            fetchData();
+        }
+    }, [profile, menu]);
   
     return (
         <SafeAreaView style={ styles.container }>
@@ -40,29 +42,23 @@ const Menu = () => {
             <View style={ styles.body }>
                 <Text style={ styles.txtHeader }>All is prepared</Text>
                 <View style={ styles.contentContainer }>
-                    <Categories categories={ categories } onCategoryChange={ handleCategoryChange } />
+                    <Categories categories={ ['All', ...MENU_CATEGORIES] } onCategoryChange={ handleCategoryChange } />
                     <FlatList
                         showsVerticalScrollIndicator={ false }
-                        data={ menu } 
-                        keyExtractor={ (index) => index }
+                        data={ menuList } 
+                        keyExtractor={ (item, index) => index }
                         numColumns={ 2 }
                         renderItem={ ({ item }) => (
-                            <View style={ styles.menuItem }>
+                            <TouchableOpacity style={ styles.menuItem }>
                                 <View style={ styles.menuItemContainer }>
-                                <Image source={{ uri: item.img }} style={ styles.menuImage } />
-                                <Text style={ styles.menuName }>{ item.name }</Text>
-                                <Text style={ styles.menuPrice }>₱{ item.price }</Text>
+                                    <Image src={ item.imageUrl ?? 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F282%2F282465.png&f=1&nofb=1&ipt=882638a8b113a96b2f827e92de88e9728c11378025d1842bb22cea7e21f37d9c&ipo=images' } style={ styles.menuImage } />
+                                    <Text style={ styles.menuName }>{ item.dishName }</Text>
+                                    <Text style={ styles.menuPrice }>₱{ (item.price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         ) }
                     />
                 </View>
-                    
-                <TouchableOpacity style={ styles.plusButton } onPress={ () => router.replace('/ingredient/AddIngredient') }>
-                    <View style={ styles.plusButtonInner }>
-                        <AntDesign name="pluscircle" size={ 50 } color="#389F4F" />
-                    </View>
-                </TouchableOpacity>
             </View>
 
             <Navigation currentRoute="Menu"/>
@@ -88,7 +84,8 @@ const styles = StyleSheet.create({
         letterSpacing: 2
     },
     contentContainer: {
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        marginBottom: 180
     },
     menuItem: {
         flex: 1,
