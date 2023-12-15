@@ -94,7 +94,7 @@ const Register = () => {
 
                 <View style={styles.terms}>
                     <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked}/>
-                    <Text style={{fontSize: 12, textAlign: 'center', width: '80%'}}>Check here to indicate that you have read and agree to the terms and conditions.</Text>
+                    <Text style={{fontSize: 12, textAlign: 'center', width: '80%', justifyContent: 'center'}}>Check here to indicate that you have read and agree to the terms and conditions.</Text>
                 </View>
 
 
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: 'bold',
         textTransform: 'uppercase',
-        marginTop: -20,
+        marginTop: 50,
         marginBottom: 10,
         alignSelf: 'flex-start'
     },
