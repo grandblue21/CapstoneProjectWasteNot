@@ -50,6 +50,9 @@ const EditBatch = () => {
                 throw 'Failed to update batch';
             }
 
+            // Update quantity
+            await FBApp.db.update(COLLECTIONS.ingredients, { total_quantity: history.reduce((total, current) => total + parseInt(current.item_quantity), quantity) }, ingredient.id);
+
             // Show notif
             ToastAndroid.showWithGravity(`Batch of ${ ingredient.Item_name } Updated`, ToastAndroid.LONG, ToastAndroid.TOP);
 

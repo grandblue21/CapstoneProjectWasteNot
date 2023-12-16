@@ -90,6 +90,9 @@ const History = () => {
                                                             try {
                                                                 await FBApp.db.delete(COLLECTIONS.ingredients_history, x.id);
 
+                                                                // Update quantity
+                                                                await FBApp.db.update(COLLECTIONS.ingredients, { total_quantity: history.filter(y => y.id != id).reduce((total, current) => total + parseInt(current.item_quantity), 0) }, ingredient.id);
+
                                                                 // Remove from history
                                                                 setHistory(history.filter(y => y.id != x.id));
 
