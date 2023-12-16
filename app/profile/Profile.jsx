@@ -63,7 +63,7 @@ const Profile = () => {
                 headerStyle: { backgroundColor: '#FFF' },
                 headerShadowVisible: false,
                 headerLeft: () => <ScreenHeaderBtn component={(
-                    <FontAwesome name="bars" style={{ fontSize: 23 }} />
+                    <FontAwesome name="bars" style={{ fontSize: 23 }} />  //Kani ang Ilisi sa Gear Drop-Down
                 )} />,
                 headerRight: () => <ScreenHeaderBtn handlePress={ () => router.push('/profile/EditProfile') } component={(
                     <View style={ styles.editBtnContainer } >
