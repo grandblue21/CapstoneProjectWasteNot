@@ -16,7 +16,7 @@ const Header = ({ title, showBack, hideTitle, hideNotification, showBackOverride
                         <FontAwesome name={'chevron-left'} style={ styles.backIcon }/>
                     </View>
                 )} /> :
-                ( showBackOverride && !showBackOverride ? null : <ScreenHeaderBtn component={ <FontAwesome name="bars" style={{ fontSize: 23 }} /> } />)
+                ( showBackOverride && !showBackOverride ? null : <ScreenHeaderBtn component={ null } />)
             ),
             headerRight: () => (
                 hideNotification ? null :

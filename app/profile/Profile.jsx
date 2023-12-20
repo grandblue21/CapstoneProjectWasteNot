@@ -6,7 +6,7 @@ import { Stack, useRouter } from 'expo-router';
 import { COLORS } from '../../constants';
 import Navigation from '../../components/common/navigation/Navigation';
 import getProfile from '../../hook/getProfile';
-import { Menu, Divider, Provider } from 'react-native-paper';
+import { Menu, Provider } from 'react-native-paper';
 import FirebaseApp from '../../helpers/FirebaseApp';
 
 const CustomDropdown = () => {
@@ -39,9 +39,10 @@ const CustomDropdown = () => {
             <Menu
                 visible={ visible }
                 onDismiss={ closeMenu }
+                statusBarHeight="0"
                 anchor={(
                     <TouchableOpacity onPress={ openMenu }>
-                        <FontAwesome name="gear" style={{ fontSize: 24, color: COLORS.primary }}/>
+                        <FontAwesome name="gear" style={{ fontSize: 30, color: COLORS.primary }}/>
                     </TouchableOpacity>
                 )}
             >
@@ -63,7 +64,7 @@ const Profile = () => {
                 headerStyle: { backgroundColor: '#FFF' },
                 headerShadowVisible: false,
                 headerLeft: () => <ScreenHeaderBtn component={(
-                    <FontAwesome name="bars" style={{ fontSize: 23 }} />  //Kani ang Ilisi sa Gear Drop-Down
+                    <CustomDropdown/>
                 )} />,
                 headerRight: () => <ScreenHeaderBtn handlePress={ () => router.push('/profile/EditProfile') } component={(
                     <View style={ styles.editBtnContainer } >
@@ -76,9 +77,8 @@ const Profile = () => {
             <View style={ styles.body }>
                 <View style={ styles.imageContainer }>
                     <TouchableOpacity>
-                        <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/666/666201.png' }} style={ styles.image }/>
+                        <Image src={ profile.imageUrl ?? 'https://cdn-icons-png.flaticon.com/512/666/666201.png' } style={ styles.image }/>
                     </TouchableOpacity>
-                    <CustomDropdown/>
                 </View>
 
                 <Text style={ styles.nameHeader }>{ [profile.firstName, profile.lastName].join(' ') }</Text>
@@ -97,12 +97,12 @@ const Profile = () => {
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Phone Number:</Text>
-                        <Text style={ styles.infoText }>{ profile.contactNum ? profile.contactNum : 'None' }</Text>
+                        <Text style={ styles.infoText }>{ profile.contactNum ?? 'None' }</Text>
                     </View>
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Address:</Text>
-                        <Text style={ styles.infoText }>{ profile.address }</Text>
+                        <Text style={ styles.infoText }>{ profile.address ?? 'Not given' }</Text>
                     </View>
 
                 </View>

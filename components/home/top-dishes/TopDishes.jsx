@@ -4,9 +4,11 @@ import { COLORS, FONT, SIZES } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
 import getMenu from '../../../hook/getMenu';
 import getProfile from '../../../hook/getProfile';
+import { useRouter } from 'expo-router';
 
 const TopDishes = () => {
 
+    const router = useRouter();
     const { profile } = getProfile();
     const { menu } = getMenu();
     const [menuList, setMenuList] = useState([]);
@@ -28,7 +30,7 @@ const TopDishes = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>Top Dishes</Text>
-                <TouchableOpacity style={styles.seeAllContainer}>
+                <TouchableOpacity style={styles.seeAllContainer} onPress={ () => router.replace('/menu/Menu') }>
                     <Text style={styles.seeAllText}>See All</Text>
                     <FontAwesome name="chevron-right" style={styles.seeAllIcon}/>
                 </TouchableOpacity>

@@ -1,81 +1,202 @@
-import { StyleSheet, SafeAreaView, ScrollView, View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import { useState, useEffect } from 'react';
+import { StyleSheet, SafeAreaView, ScrollView, View, Text, Image, TextInput, TouchableOpacity, Alert, ToastAndroid } from 'react-native';
 import Header from '../../components/common/header/Header';
 import Search from '../../components/home/search/Search';
-import { COLORS } from '../../constants';
+import { COLLECTIONS, COLORS } from '../../constants';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import getProfile from '../../hook/getProfile';
+import FirebaseApp from '../../helpers/FirebaseApp';
 
 const Wishlist = () => {
 
     const router = useRouter();
-    const wishlist = [
-        {
-            restaurant: 'RS1',
-            ingredients: [
-                {
-                    name: 'Rib Eye',
-                    image: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg',
-                    quantity: 4,
-                    price: 69
-                }
-            ]
-        },
-        {
-            restaurant: 'RS2',
-            ingredients: [
-                {
-                    name: 'Rib Eye',
-                    image: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg',
-                    quantity: 5,
-                    price: 69420
-                }
-            ]
+    const FBApp = new FirebaseApp();
+    const { profile } = getProfile();
+    const [wishlist, setWishlist] = useState([]);
+    const [quantity, setQuantity] = useState([]);
+    const [saleItems, setSaleItems] = useState([]);
+    const [restaurants, setRestaurants] = useState([]);
+    const [restaurantsFormatted, setRestaurantsFormatted] = useState([]);
+
+    // Useeffect for Wishist
+    useEffect(() => {
+
+        const fetchData = async () => {
+
+            // Get wishlist
+            setWishlist(await FBApp.db.gets(COLLECTIONS.wishlist, {
+                column: 'User_id',
+                comparison: '==',
+                value: profile.userId
+            }));
         }
-    ];
+
+        // Profile is loaded
+        if (profile.id) {
+            fetchData();
+        }
+    }, [profile]);
+
+    // UseEffect for Wishlist
+    useEffect(() => {
+
+        const fetchData = async () => {
+
+            // Set sale Items
+            setSaleItems(await Promise.all(wishlist.map(async (list) => {
+
+                // Get item
+                const item = await FBApp.db.get_from_ref(COLLECTIONS.sale_items, list.Sale_id);
+
+                // Get data
+                item.data = await FBApp.db.get(COLLECTIONS.ingredients, {
+                    column: 'ItemId',
+                    comparison: '==',
+                    value: item.ItemId
+                });
+
+                return item;
+            })));
+
+            // Set quantity
+            setQuantity(wishlist.map(x => ({ [x.id]: x.Quantity })));
+        }
+
+        // Wishilst is loaded
+        if (wishlist.length > 0) {
+            fetchData();
+        }
+    }, [wishlist]);
+
+    // UseEffect for Restaurants
+    useEffect(() => {
+
+        const fetchData = async () => {
+
+            // Restaurants
+            const rests = [...new Set(saleItems.map(x => x.Restaurant_Id))];
+
+            // Get restaurant details
+            setRestaurants(await Promise.all(rests.map(async (res) => await FBApp.db.get_from_ref(COLLECTIONS.restaurants, res))));
+        }
+
+        // SaleItems is loaded
+        if (saleItems.length > 0) {
+            fetchData();
+        }
+    }, [saleItems]);
+
+    // UseEffect for Wishlist Items formatted
+    useEffect(() => {
+
+        const fetchData = async () => {
+
+            setRestaurantsFormatted(restaurants.map((rest) => {
+
+                rest.items = saleItems.filter(x => x.Restaurant_Id == rest.id).map((items) => ({ ...items, wishlist: wishlist.find(x => x.Sale_id == items.id) }));
+
+                return rest;
+            }));
+        }
+
+        // Restaurants is loaded
+        if (restaurants.length > 0) {
+            fetchData();
+        }
+    }, [restaurants]);console.log(quantity)
+
 
     return (
         <SafeAreaView style={ styles.container }>
 
-            <Header title="Wishlist"/>
+            <Header title="Wishlist" showBack={{ show: true, handleBack: () => router.replace('dashboard/Dashboard') }}/>
 
             <Search/>
 
             <ScrollView style={ styles.body }>
                 
                 {
-                    wishlist.map((list, index) => (
+                    restaurantsFormatted.map((restaurant, index) => (
                         <View style={ styles.restaurant } key={index}>
 
                             <View style={ styles.restaurantContainer }>
-                                <Image source={{ uri: 'https://marketplace.canva.com/EAFpeiTrl4c/1/0/1600w/canva-abstract-chef-cooking-restaurant-free-logo-9Gfim1S8fHg.jpg' }} style={ styles.restaurantImage }/>
-                                <Text style={ styles.restaurantName } numberOfLines={ 2 } ellipsizeMode="tail">{ list.restaurant }</Text>
+                                <Image src={ restaurant.restaurantLogo } style={ styles.restaurantImage }/>
+                                <Text style={ styles.restaurantName } numberOfLines={ 2 } ellipsizeMode="tail">{ restaurant.restaurantName }</Text>
                             </View>
 
                             <ScrollView style={ styles.restaurantIngredients }>
 
                                 {
-                                    list.ingredients.map((ingredient, i) => (
+                                    restaurant.items.map((item, i) => (
                                         <View style={ styles.ingredient } key={i}>
-                                            <Image style={ styles.ingredientImage }/>
+                                            <Image style={ styles.ingredientImage } src={ item.data.image }/>
                                             <View style={{ flex: 1 }}>
                                                 <View style={ styles.ingredientHeader }>
-                                                    <Text style={ styles.ingredientName }>{ ingredient.name }</Text>
+                                                    <Text style={ styles.ingredientName }>{ item.data.Item_name }</Text>
                                                     <View style={ styles.actionContainer }>
-                                                        <TouchableOpacity  onPress={ () => router.replace('/dashboard/Dashboard') }>
+                                                        <TouchableOpacity  onPress={ async () => {
+
+                                                            // Update wishlist
+                                                            await FBApp.db.update(COLLECTIONS.wishlist, { Quantity: quantity.find(x => Object.keys(x).includes(item.wishlist.id))[item.wishlist.id] }, item.wishlist.id);
+
+                                                            // Update quantity
+                                                            await FBApp.db.update(COLLECTIONS.sale_items, { Quantity: parseFloat(item.Quantity) + parseFloat(item.wishlist.Quantity) - quantity.find(x => Object.keys(x).includes(item.wishlist.id))[item.wishlist.id] }, item.id);
+                                                            
+                                                            // Show notif
+                                                            ToastAndroid.showWithGravity('Wishlist Updated', ToastAndroid.LONG, ToastAndroid.TOP);
+
+                                                            // Reload
+                                                            router.replace(`/wishlist/Wishlist`);
+                                                        } }>
                                                             <FontAwesome name="pencil" style={ styles.editIcon } />
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity>
+                                                        <TouchableOpacity onPress={ () => (
+                                                            Alert.alert(
+                                                                'Remove Wishlist',
+                                                                'Are you sure you want to perform this action?',
+                                                                [
+                                                                    {
+                                                                        text: 'Cancel',
+                                                                        style: 'cancel',
+                                                                    },
+                                                                    {
+                                                                        text: 'Remove',
+                                                                        onPress: async () => {
+                                                                            try {
+
+                                                                                // Remove wishlist
+                                                                                await FBApp.db.delete(COLLECTIONS.wishlist, item.wishlist.id);
+
+                                                                                // Update quantity
+                                                                                await FBApp.db.update(COLLECTIONS.sale_items, { Quantity: parseFloat(item.Quantity) + parseFloat(item.wishlist.Quantity) }, item.id);
+
+                                                                                // Show notif
+                                                                                ToastAndroid.showWithGravity('Wishlist Removed', ToastAndroid.LONG, ToastAndroid.TOP);
+
+                                                                                // Reload
+                                                                                router.replace(`/wishlist/Wishlist`);
+                                                                            }
+                                                                            catch (error) {
+                                                                                console.log(error);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                { cancelable: false }
+                                                            )
+                                                        ) }>
                                                             <FontAwesome name="trash" style={ styles.deleteIcon } />
                                                         </TouchableOpacity>
                                                     </View>
                                                 </View>
-                                                <Text style={ styles.ingredientPrice }>Price: ₱ { ingredient.price } per Kg.</Text>
+                                                <Text style={ styles.ingredientPrice }>Price: ₱ { item.Price.toLocaleString(undefined, { minimumFractionDigits: 2 }) } per Kg.</Text>
                                                 <View style={ styles.infoContainer}>
                                                     <View style={ styles.quantityContainer }>
-                                                        <TextInput style={ styles.quantity } value={ ingredient.quantity.toString() }/>
+                                                        <TextInput style={ styles.quantity } value={ quantity.find(x => Object.keys(x).includes(item.wishlist.id))[item.wishlist.id].toString() } onChangeText={ input => setQuantity([ ...quantity.filter(x => !Object.keys(x).includes(item.wishlist.id)), { [item.wishlist.id]: input } ]) }/>
                                                     </View>
                                                     <View style={ styles.infoTotalContainer }>
-                                                        <Text style={ styles.infoTotal }>/105</Text>
+                                                        <Text style={ styles.infoTotal }>/{ item.Quantity }</Text>
                                                         <Text style={ styles.infoLeft }>kg Available</Text>
                                                     </View>
                                                 </View>
@@ -94,7 +215,7 @@ const Wishlist = () => {
 
             <View style={ styles.totalContainer }>
                 <Text style={ styles.totalLabel }>Total:</Text>
-                <Text style={ styles.total }>₱ 2350.00</Text>
+                <Text style={ styles.total }>₱{ (saleItems.reduce((total, current) => parseFloat(current.Price) * parseFloat(wishlist.find(x => x.Sale_id == current.id).Quantity) + total, 0)).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
             </View>
 
         </SafeAreaView>

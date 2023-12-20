@@ -37,7 +37,7 @@ const Chatbot = () => {
 
             // Update Conversation
             await FBApp.db.insert(COLLECTIONS.chat, {
-                user_id: session.profile.user_id,
+                user_id: session.profile.userId,
                 isBot: isBot,
                 message: message,
                 created_at: Timestamp.fromDate(new Date())
@@ -59,24 +59,26 @@ const Chatbot = () => {
     // Handle Send Message
     const handleSend = async () => {
 
+        // Check if not empty
+        if (!inputQuery) {
+            ToastAndroid.showWithGravity('Please specifiy your prompt', ToastAndroid.LONG, ToastAndroid.TOP);
+            return false;
+        }
+
         // Hide keyboard
         Keyboard.dismiss();
 
         // Request options
         const options = {
             method: 'POST',
-            url: 'https://open-ai21.p.rapidapi.com/conversationgpt35',
+            url: 'https://simple-chatgpt-api.p.rapidapi.com/ask',
             headers: {
-              'content-type': 'application/json',
-              'X-RapidAPI-Key': '98aa04f06cmsh08fad60df460757p169c40jsn26176e1834b4',
-              'X-RapidAPI-Host': 'open-ai21.p.rapidapi.com'
+                'content-type': 'application/json',
+                'X-RapidAPI-Key': 'afab6284a5mshae6dd43c22e53a1p14328bjsn3e3a0c4e172d',
+                'X-RapidAPI-Host': 'simple-chatgpt-api.p.rapidapi.com'
             },
             data: {
-                messages: conversation.map(x => ({
-                    role: x.isBot ? 'assistant' : 'user',
-                    content: x.message
-                })),
-                temperature: 1
+                question: 'As a Chef, ' + inputQuery
             }
         }
 
@@ -92,14 +94,14 @@ const Chatbot = () => {
             const response = await axios.request(options);
 
             // Include to conversation
-            newMessage(true, response.data.content);
+            newMessage(true, response.data.answer);
 
             // Scroll to bottom
             scrollViewRef.current.scrollToEnd({ animated: true });
         }
         catch (error) {console.log(error);
-             // Show notif
-             ToastAndroid.showWithGravity('WasteNot AI cannot reply. Please try again later.', ToastAndroid.LONG, ToastAndroid.TOP);
+            // Show notif
+            ToastAndroid.showWithGravity('WasteNot AI cannot reply. Please try again later.', ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 
@@ -119,7 +121,7 @@ const Chatbot = () => {
             const convo = await FBApp.db.gets(COLLECTIONS.chat, {
                 column: 'user_id',
                 comparison: '==',
-                value: session.profile.user_id
+                value: session.profile.userId
             }, {
                 column: 'created_at',
                 direction: 'asc'

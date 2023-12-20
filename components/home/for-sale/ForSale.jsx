@@ -4,9 +4,11 @@ import { COLORS, FONT, SIZES, COLLECTIONS } from '../../../constants';
 import { FontAwesome } from '@expo/vector-icons';
 import getSaleItems from '../../../hook/getSaleItems';
 import FirebaseApp from '../../../helpers/FirebaseApp';
+import { useRouter } from 'expo-router';
 
 const ForSale = () => {
 
+    const router = useRouter();
     const FBApp = new FirebaseApp();
     const [items, setItems] = useState([]);
     const { saleItems } = getSaleItems();
@@ -17,21 +19,24 @@ const ForSale = () => {
             const ingredient = await FBApp.db.gets(COLLECTIONS.ingredients, {
                 column: 'ItemId',
                 comparison: 'in',
-                value: saleItems.map(x => x.Item_id)
+                value: saleItems.map(x => x.ItemId)
             });
             
             // Include to data
-            setItems(saleItems.map((item) => ({ ...item, image: ingredient.find(x => x.ItemId, item.Item_id).image })));
+            setItems(saleItems.map((item) => ({ ...item, image: ingredient.find(x => x.ItemId).image })));
         }
 
-        fetchData();
+        // Fetch items if not empty
+        if (saleItems.length > 0) {
+            fetchData();
+        }
     }, [saleItems]);
 
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>For Sale</Text>
-                <TouchableOpacity style={styles.seeAllContainer}>
+                <TouchableOpacity style={styles.seeAllContainer} onPress={ () => router.replace(`/market/Market`) }>
                     <Text style={styles.seeAllText}>See All</Text>
                     <FontAwesome name="chevron-right" style={styles.seeAllIcon}/>
                 </TouchableOpacity>
@@ -41,7 +46,7 @@ const ForSale = () => {
                 <FlatList
                     data={ items }
                     renderItem={({ item }) => (
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={ () => router.replace(`/restaurant/ingredient-cart/${ item.id }`) }>
                             <Image source={{ uri: item.image }} style={styles.item} />
                         </TouchableOpacity>
                     )}

@@ -78,7 +78,7 @@ const EditProfile = () => {
             <View style={ styles.body }>
                 
                 <TouchableOpacity style={ styles.imageContainer }>
-                    <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/666/666201.png' }} style={ styles.image }/>
+                    <Image src={ profile.imageUrl ?? 'https://cdn-icons-png.flaticon.com/512/666/666201.png' } style={ styles.image }/>
                 </TouchableOpacity>
 
                 <Text style={ styles.nameHeader }>Edit</Text>

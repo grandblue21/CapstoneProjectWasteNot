@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView , FlatList, Image, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, ScrollView , FlatList, Image, TouchableOpacity, ToastAndroid, Alert} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Categories from '../../components/common/navigation/Categories';
 import { MaterialIcons,FontAwesome,AntDesign } from '@expo/vector-icons';
@@ -18,7 +18,7 @@ const MarketScreen = () => {
     const [selectedCategory, setSelectedCategory] = useState(0);
     const { profile, isLoading } = getProfile();
     const { saleItems, isLSI, refetch } = getSaleItems({
-        column: 'Restaurant_id',
+        column: 'Restaurant_Id',
         comparison: '==',
         value: profile.adminId
     });
@@ -38,16 +38,16 @@ const MarketScreen = () => {
             const items = await FBApp.db.gets(COLLECTIONS.ingredients, {
                 column: 'ItemId',
                 comparison: 'in',
-                value: saleItems.map(x => x.Item_id)
+                value: saleItems.map(x => x.ItemId)
             });
             
             // Include to data
-            setMarketItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
-            setMarketItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+            setMarketItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.ItemId) })));
+            setMarketItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.ItemId) })));
         }
 
         // Get data if both are fetched
-        if (!isLoading && !isLSI) {
+        if (saleItems.length > 0 && !isLoading && !isLSI) {
             getData();
         }
     }, [isLoading, isLSI, saleItems]);
@@ -65,7 +65,7 @@ const MarketScreen = () => {
             <Header title="Market"/>
             <Search/>
             <View style={ styles.body }>
-                <View style={ styles.contentContainer }>
+                <ScrollView style={ styles.contentContainer }>
                     <Categories categories={ ['All', ...CATEGORIES] } onCategoryChange={ handleCategoryChange } />
                     <FlatList
                         showsVerticalScrollIndicator={ false }
@@ -77,27 +77,56 @@ const MarketScreen = () => {
                                 <View style={ styles.marketItemContainer }>
                                     <Image src={ item.data.image } style={ styles.marketImage } />
                                     <View style={ styles.iconContainer }>
-                                        <TouchableOpacity>
+                                        <TouchableOpacity onPress={ () => (
+                                            Alert.alert(
+                                                'Remove Market Item',
+                                                'Are you sure you want to perform this action?',
+                                                [
+                                                    {
+                                                        text: 'Cancel',
+                                                        style: 'cancel',
+                                                    },
+                                                    {
+                                                        text: 'Remove',
+                                                        onPress: async () => {
+                                                            try {
+                                                                await FBApp.db.delete(COLLECTIONS.sale_items, item.id);
+
+                                                                // Show notif
+                                                                ToastAndroid.showWithGravity('Market Item Removed', ToastAndroid.LONG, ToastAndroid.TOP);
+
+                                                                // Reload
+                                                                router.replace('/market/StaffMarket');
+                                                            }
+                                                            catch (error) {
+                                                                console.log(error);
+                                                            }
+                                                        }
+                                                    }
+                                                ],
+                                                { cancelable: false }
+                                            )
+                                        ) }>
                                             <View style={ styles.iconBackground }>
-                                            <FontAwesome name="trash-o" size={ 18 } color="#ED5E5E" style={ styles.icon } />
+                                                <FontAwesome name="trash-o" size={ 18 } color="#ED5E5E" style={ styles.icon } />
                                             </View>
                                         </TouchableOpacity>
-                                        <TouchableOpacity>
+                                        <TouchableOpacity onPress={ () => router.replace(`/market/edit/${item.id}`) }>
                                             <View style={ styles.iconBackground }>
                                                 <MaterialIcons name="edit" size={ 18 } color="#389F4F" style={ styles.icon } />
                                             </View>
                                         </TouchableOpacity>
                                     </View>
-                                        <View style={ styles.itemInfoContainer }>
+                                    <View style={ styles.itemInfoContainer }>
                                         <Text style={ styles.marketName }>{ item.data.Item_name }</Text>
-                                        <Text style={ styles.marketStock }>In Store: { item.Sale_quantity } kg</Text>
+                                        <Text style={ styles.marketStock }>In Store: { item.Quantity } kg</Text>
                                     </View>
-                                    <Text style={ styles.marketPrice }>₱{ item.Sale_price } per kg</Text>
+                                    <Text style={ styles.marketPrice }>₱{ parseFloat(item.Price).toLocaleString(undefined, { minimumFractionDigits: 2 }) } per kg</Text>
                                 </View>
                             </View>
                         )}
                     />
-                </View>
+                </ScrollView>
                 
                 <TouchableOpacity style={ styles.plusButton } onPress={ () => router.replace('/market/AddSaleItem') }>
                     <View style={ styles.plusButtonInner }>

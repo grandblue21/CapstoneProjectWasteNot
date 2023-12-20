@@ -13,7 +13,7 @@ const Restaurants = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>Restaurants</Text>
-                <TouchableOpacity style={styles.seeAllContainer}>
+                <TouchableOpacity style={styles.seeAllContainer} onPress={ () => router.replace('/market/Market') }>
                     <Text style={styles.seeAllText}>See All</Text>
                     <FontAwesome name="chevron-right" style={styles.seeAllIcon}/>
                 </TouchableOpacity>

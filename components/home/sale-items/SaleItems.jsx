@@ -12,7 +12,7 @@ const SaleItems = () => {
     const router = useRouter();
     const FBApp = new FirebaseApp();
     const { profile, isLoading } = getProfile();
-    const { saleItems, isLoading: isLSI, refetch } = getSaleItems({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+    const { saleItems, isLoading: isLSI, refetch } = getSaleItems({ column: 'Restaurant_Id', comparison: '==', value: profile.adminId });
     const [items, setItems] = useState([]);
 
     // Gets ingredients if profile and sale items are loaded
@@ -22,11 +22,11 @@ const SaleItems = () => {
             const items = await FBApp.db.gets(COLLECTIONS.ingredients, {
                 column: 'ItemId',
                 comparison: 'in',
-                value: saleItems.map(x => x.Item_id)
+                value: saleItems.map(x => x.ItemId)
             });
             
             // Include to data
-            setItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+            setItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.ItemId) })));
         }
 
         // Get data if both are fetched
@@ -46,7 +46,7 @@ const SaleItems = () => {
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTitle}>Items on Sale</Text>
-                <TouchableOpacity style={styles.seeAllContainer}>
+                <TouchableOpacity style={styles.seeAllContainer} onPress={ () => router.replace('/market/StaffMarket') }>
                     <Text style={styles.seeAllText}>See All</Text>
                     <FontAwesome name="chevron-right" style={styles.seeAllIcon}/>
                 </TouchableOpacity>

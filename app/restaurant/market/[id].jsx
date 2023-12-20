@@ -17,7 +17,7 @@ const Restaurant = () => {
     const FBApp = new FirebaseApp();
     const [restaurant, setRestaurant] = useState({});
     const { saleItems } = getSaleItems({
-        column: 'Restaurant_id',
+        column: 'Restaurant_Id',
         comparison: '==',
         value: id
     });
@@ -35,17 +35,20 @@ const Restaurant = () => {
     useEffect(() => {
 
         const fetchData = async () => {
-            const items = await FBApp.db.gets(COLLECTIONS.ingredients, {
+            const fetchedItems = await FBApp.db.gets(COLLECTIONS.ingredients, {
                 column: 'ItemId',
                 comparison: 'in',
-                value: saleItems.map(x => x.Item_id)
+                value: saleItems.map(x => x.ItemId)
             });
 
-            setItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
-            setItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.Item_id) })));
+            setItems(saleItems.map((item) => ({ ...item, data: fetchedItems.find(x => x.ItemId, item.Item_id) })));
+            setItemsList(saleItems.map((item) => ({ ...item, data: fetchedItems.find(x => x.ItemId, item.Item_id) })));
         }
 
-        fetchData();
+        // Fetch items if there are saleItems
+        if (saleItems.length > 0) {
+            fetchData();
+        }
     }, [saleItems]);
 
     // Restaurant Use Effect
@@ -83,17 +86,17 @@ const Restaurant = () => {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', flexWrap: 'wrap' }}>
                         {
                             items.map((ingredient, index) => (
-                                <TouchableOpacity key={ index } style={ styles.restaurantIngredient } onPress={ () => router.push('/restaurant/IngredientCart') }>
+                                <TouchableOpacity key={ index } style={ styles.restaurantIngredient } onPress={ () => router.push(`/restaurant/ingredient-cart/${ ingredient.id }`) }>
 
                                     <Image src={ ingredient.data.image } style={ styles.ingredientImage }/>
 
                                     <View style={ styles.ingredientInfoContainer }>
                                         <View style={ styles.ingredientNameContainer }>
                                             <Text style={ styles.ingredientName } numberOfLines={ 1 } ellipsizeMode="tail">{ ingredient.data.Item_name }</Text>
-                                            <Text style={ styles.ingredientLeft }>In store: { ingredient.Sale_quantity }kg</Text>
+                                            <Text style={ styles.ingredientLeft }>In store: { ingredient.Quantity }kg</Text>
                                         </View>
                                         <View style={ styles.ingredientPriceContainer }>
-                                            <Text style={ styles.ingredientPrice }>₱{ (ingredient.Sale_price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
+                                            <Text style={ styles.ingredientPrice }>₱{ (ingredient.Price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>
                                             <Text style={ styles.ingredientPricePer }>per kg</Text>
                                         </View>
                                     </View>
