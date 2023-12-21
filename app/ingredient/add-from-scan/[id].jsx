@@ -17,6 +17,7 @@ const Ingredient = () => {
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
     const [expDate, setExpDate] = useState(new Date(moment().format('YYYY-MM-DD')));
+    const [price, setPrice] = useState(null);
     const { profile } = getProfile();
     const [open, setOpen] = useState(false);
     const [category, setCategory] = useState(null);
@@ -67,6 +68,36 @@ const Ingredient = () => {
 
             // Check if added
             if (!history) {
+                throw 'Failed to add ingredient';
+            }
+
+            // Insert Market Request Item
+            const request = await FBApp.db.insert(COLLECTIONS.market_request, {
+                item_id: id,
+                Date: moment().format('YYYY-MM-DD'),
+                price: price,
+                item_quantity: quantity,
+                Staff_id: profile.id,
+                Restaurant_id: profile.adminId
+            });
+
+            // Check if added
+            if (!request) {
+                throw 'Failed to add ingredient';
+            }
+
+            // Insert Sale Item
+            const saleItem = await FBApp.db.insert(COLLECTIONS.sale_items, {
+                Date: moment().format('YYYY-MM-DD'),
+                ItemId: id,
+                Price: price,
+                Quantity: quantity,
+                Staff_id: profile.id,
+                Restaurant_Id: profile.adminId
+            });
+            
+            // Check if added
+            if (!saleItem) {
                 throw 'Failed to add ingredient';
             }
 
@@ -123,6 +154,11 @@ const Ingredient = () => {
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Quantity:</Text>
                         <TextInput style={ styles.infoInput } value={ quantity } placeholder="0" onChangeText={ (input) => setQuantity(input) }/>
+                    </View>
+
+                    <View style={ styles.infoItem }>
+                        <Text style={ styles.infoLabel }>Price:</Text>
+                        <TextInput style={ styles.infoInput } value={ price } placeholder="₱0.00" onChangeText={ (input) => setPrice(input) }/>
                     </View>
 
                     <View style={ styles.infoItem }>

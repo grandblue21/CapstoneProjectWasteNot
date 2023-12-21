@@ -42,7 +42,7 @@ const EditSaleItem = () => {
         try {
             
             const data = {
-                item_id: item,
+                ItemId: item,
                 Date: moment().format('YYYY-MM-DD'),
                 Price: price,
                 Quantity: quantity,
@@ -61,11 +61,11 @@ const EditSaleItem = () => {
 
             // Check if added
             if (!result) {
-                throw 'Failed to update market request';
+                throw 'Failed to update market item';
             }
 
             // Show notif
-            ToastAndroid.showWithGravity('Ingredient for Market Sale Request Updated', ToastAndroid.LONG, ToastAndroid.TOP);
+            ToastAndroid.showWithGravity('Ingredient for Market Sale Item Updated', ToastAndroid.LONG, ToastAndroid.TOP);
 
             // Redirect to market
             router.replace('/market/StaffMarket');

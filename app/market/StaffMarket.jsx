@@ -42,8 +42,8 @@ const MarketScreen = () => {
             });
             
             // Include to data
-            setMarketItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.ItemId) })));
-            setMarketItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId, item.ItemId) })));
+            setMarketItems(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId == item.ItemId) })));
+            setMarketItemsList(saleItems.map((item) => ({ ...item, data: items.find(x => x.ItemId == item.ItemId) })));
         }
 
         // Get data if both are fetched

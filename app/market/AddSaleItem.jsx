@@ -39,10 +39,10 @@ const AddSaleItem = () => {
         try {
             
             const data = {
-                item_id: item,
+                ItemId: item,
                 Date: moment().format('YYYY-MM-DD'),
-                price: price,
-                item_quantity: quantity,
+                Price: price,
+                Quantity: quantity,
                 Staff_id: profile.id,
                 Restaurant_id: profile.adminId
             }

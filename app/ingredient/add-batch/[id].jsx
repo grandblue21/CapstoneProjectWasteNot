@@ -25,6 +25,11 @@ const AddBatch = () => {
     const handleConfirm = async () => {
 
         try {
+
+            // Check if ingredient is loaded
+            if (!ingredient.id) {
+                throw 'Loading please wait';
+            }
             
             const data = {
                 ItemId: ingredient.ItemId,
@@ -41,10 +46,10 @@ const AddBatch = () => {
             });
 
             // Insert History
-            const history = await FBApp.db.insert(COLLECTIONS.ingredients_history, data);
+            const history_result = await FBApp.db.insert(COLLECTIONS.ingredients_history, data);
 
             // Check if added
-            if (!history) {
+            if (!history_result) {
                 throw 'Failed to add batch';
             }
 
