@@ -7,7 +7,7 @@ import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
 import getProfile from '../../hook/getProfile';
 import getMenu from '../../hook/getMenu';
-import { COLLECTIONS, MENU_CATEGORIES } from '../../constants';
+import { COLLECTIONS, MENU_CATEGORIES, SIZES } from '../../constants';
 
 const Menu = () => {
 
@@ -40,7 +40,12 @@ const Menu = () => {
             <Header title="Menu"/>
             <Search/>
             <View style={ styles.body }>
-                <Text style={ styles.txtHeader }>All is prepared</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={ styles.txtHeader }>All is prepared</Text>
+                    <TouchableOpacity onPress={ () => router.replace('/menu/Recommendation') } style={{ marginRight: SIZES.medium }}>
+                        <Text>Recommendations</Text>
+                    </TouchableOpacity>
+                </View>
                 <View style={ styles.contentContainer }>
                     <Categories categories={ ['All', ...MENU_CATEGORIES] } onCategoryChange={ handleCategoryChange } />
                     <FlatList
