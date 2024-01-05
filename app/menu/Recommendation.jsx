@@ -5,15 +5,18 @@ import axios from 'axios';
 import { AntDesign } from '@expo/vector-icons';
 import Navigation from '../../components/common/navigation/Navigation';
 import { SafeAreaView, Text, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { COLORS, SIZES } from '../../constants';
+import { COLLECTIONS, COLORS, SIZES } from '../../constants';
+import FirebaseApp from '../../helpers/FirebaseApp';
 
 const Recommendation = () => {
 
+    const FBApp = new FirebaseApp();
     const { profile, isLoading } = getProfile();
     const { ingredients, isLoading: isLI, refetch } =  getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [recommendations, setRecommendations] = useState('');
     const [recipes, setRecipes] = useState([]);
     const [recipe, setRecipe] = useState({});
+    const [ingredientsWStock, setIngredientsWStock] = useState([]);
 
     useEffect(() => {
         // Refetch if profile is loaded
@@ -35,7 +38,7 @@ const Recommendation = () => {
             data: {
                 messages: [{
                     role: 'user',
-                    content: `As a Chef, write three recipes when I have ` + (ingredients.map((x) => x.Item_name).join(', ')) + `. Reply in raw json format: [{name: 'string', ingredients: 'array', instructions: 'array'}] after a phrase capitalized "HERE IS YOUR JSON FORMAT:"`
+                    content: `As a Chef, write three recipes when I have ` + (ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.Item_name).join(', ')) + `. Reply in raw json format: [{name: 'string', ingredients: 'array', instructions: 'array'}] after a phrase capitalized "HERE IS YOUR JSON FORMAT:"`
                 }],
                 system_prompt: '',
                 temperature: 0.5,
@@ -47,6 +50,19 @@ const Recommendation = () => {
         };
 
         const get_recommendations = async () => {
+
+            setIngredientsWStock(await Promise.all(ingredients.map(async (ingredient) => {
+
+                // Get History
+                const history = await FBApp.db.gets(COLLECTIONS.ingredients_history, {
+                    column: 'ItemId',
+                    comparison: '==',
+                    value: ingredient.ItemId
+                });
+
+                return { ...ingredient, stock: (history.length > 0 ? history.reduce((total, current) => total + parseInt(current.item_quantity), 0) : 0) }
+            })));
+
             const response = await axios.request(options);
             setRecommendations('Possible recipes:');
             setRecipes(JSON.parse(response.data.result.substring(response.data.result.indexOf(":") + 1).trim()));
@@ -144,12 +160,13 @@ const Recommendation = () => {
             //     }
             // ]);
         }
-        console.log(isLI);
+
         // Check if there are ingredients
         if (isLI) {
             setRecommendations('Analyzing ingredients and getting possible recipes...');
         }
         else if (!isLI && ingredients.length > 0) {
+            
             get_recommendations();
         }
         else {
@@ -191,8 +208,8 @@ const Recommendation = () => {
                             <View style={ styles.ingredientContainer }>
                                 <Text style={ styles.ingredientLabel }>Ingredients: </Text>
                                 {
-                                    recipe.ingredients.map((ingredient) => (
-                                        <Text style={ styles.ingredient }> - { ingredient }</Text>
+                                    recipe.ingredients.map((ingredient, i) => (
+                                        <Text key={i} style={ styles.ingredient }> - { ingredient }</Text>
                                     ))
                                 }
                             </View>
