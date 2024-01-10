@@ -7,7 +7,8 @@ import Search from '../../components/home/search/Search';
 import Navigation from '../../components/common/navigation/Navigation';
 import getProfile from '../../hook/getProfile';
 import getMenu from '../../hook/getMenu';
-import { COLLECTIONS, MENU_CATEGORIES, SIZES } from '../../constants';
+import {  MENU_CATEGORIES, SIZES } from '../../constants';
+import { AntDesign } from '@expo/vector-icons';
 
 const Menu = () => {
 
@@ -43,7 +44,7 @@ const Menu = () => {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={ styles.txtHeader }>All is prepared</Text>
                     <TouchableOpacity onPress={ () => router.replace('/menu/Recommendation') } style={{ marginRight: SIZES.medium }}>
-                        <Text>Recommendations</Text>
+                        <AntDesign name="pluscircle" size={ 36 } color="#389F4F" />
                     </TouchableOpacity>
                 </View>
                 <View style={ styles.contentContainer }>
