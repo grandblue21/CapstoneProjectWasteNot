@@ -10,6 +10,7 @@ import getSaleItems from '../../hook/getSaleItems';
 import getProfile from '../../hook/getProfile';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import { useRouter } from 'expo-router';
+import { gramsToKg } from '../../helpers/Converter';
 
 const MarketScreen = () => {
 
@@ -65,7 +66,7 @@ const MarketScreen = () => {
             <Header title="Market"/>
             <Search/>
             <View style={ styles.body }>
-                <ScrollView style={ styles.contentContainer }>
+                <View style={ styles.contentContainer }>
                     <Categories categories={ ['All', ...CATEGORIES] } onCategoryChange={ handleCategoryChange } />
                     <FlatList
                         showsVerticalScrollIndicator={ false }
@@ -119,14 +120,14 @@ const MarketScreen = () => {
                                     </View>
                                     <View style={ styles.itemInfoContainer }>
                                         <Text style={ styles.marketName }>{ item.data.Item_name }</Text>
-                                        <Text style={ styles.marketStock }>In Store: { item.Quantity } kg</Text>
+                                        <Text style={ styles.marketStock }>In Store: { gramsToKg(item.Quantity, 2) } kg</Text>
                                     </View>
                                     <Text style={ styles.marketPrice }>₱{ parseFloat(item.Price).toLocaleString(undefined, { minimumFractionDigits: 2 }) } per kg</Text>
                                 </View>
                             </View>
                         )}
                     />
-                </ScrollView>
+                </View>
                 
                 <TouchableOpacity style={ styles.plusButton } onPress={ () => router.replace('/market/AddSaleItem') }>
                     <View style={ styles.plusButtonInner }>
@@ -149,7 +150,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     contentContainer: {
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        marginBottom: 120
     },
     marketItem: {
         flex: 1,

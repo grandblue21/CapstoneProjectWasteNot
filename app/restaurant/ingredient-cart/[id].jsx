@@ -7,6 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import FirebaseApp from '../../../helpers/FirebaseApp';
 import getProfile from '../../../hook/getProfile';
+import { gramsToKg } from '../../../helpers/Converter';
 
 const IngredientCart = () => {
 
@@ -105,7 +106,7 @@ const IngredientCart = () => {
 
                         <Text style={ styles.detailLabel }>Avail</Text>
                         <TextInput style={{ ...styles.detailInput, width: '20%' }} value={ quantity } onChangeText={ input => setQuantity(input) }/>
-                        <Text style={{ fontSize: 30, fontWeight: 'bold', marginLeft: 5 }}>{ saleItem.Quantity }/kg</Text>
+                        <Text style={{ fontSize: 30, fontWeight: 'bold', marginLeft: 5 }}>{ gramsToKg(saleItem.Quantity, 2) }/kg</Text>
 
                     </View>
 

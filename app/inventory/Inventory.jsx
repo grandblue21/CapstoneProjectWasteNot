@@ -97,7 +97,7 @@ const Inventory = () => {
                                         </View>
                                     </View>
                                     {/* In Stock Label with kilograms */}
-                                    <Text style={ styles.inStockLabel }>{ item.stock }kg</Text>
+                                    <Text style={ styles.inStockLabel }>{ item.stock / 1000 } kg </Text>
                                     <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/ingredient/history/${item.id}`) }>
                                         <AntDesign name="doubleright" size={ 20 } color="#389F4F" />
                                     </TouchableOpacity>
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFF',
     },
     body: {
-        flex: 1
+        flex: 1,
     },
     txtHeader: {
         fontSize: 28,
@@ -135,7 +135,8 @@ const styles = StyleSheet.create({
         letterSpacing: 2,
     },
     contentContainer: {
-        paddingHorizontal: 24
+        paddingHorizontal: 24,
+        marginBottom: 180
     },
     headerLabelContainer: {
         flexDirection: 'row',

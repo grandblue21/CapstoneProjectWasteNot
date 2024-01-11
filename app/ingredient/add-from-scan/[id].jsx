@@ -153,7 +153,7 @@ const Ingredient = () => {
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Quantity:</Text>
-                        <TextInput style={ styles.infoInput } value={ quantity } placeholder="0" onChangeText={ (input) => setQuantity(input) }/>
+                        <TextInput style={ styles.infoInput } value={ quantity } placeholder="0 grams" onChangeText={ (input) => setQuantity(input) }/>
                     </View>
 
                     <View style={ styles.infoItem }>

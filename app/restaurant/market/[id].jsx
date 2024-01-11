@@ -9,6 +9,7 @@ import Categories from '../../../components/common/navigation/Categories';
 import { useGlobalSearchParams } from 'expo-router';
 import FirebaseApp from '../../../helpers/FirebaseApp';
 import getSaleItems from '../../../hook/getSaleItems';
+import { gramsToKg } from '../../../helpers/Converter';
 
 const Restaurant = () => {
 
@@ -93,7 +94,7 @@ const Restaurant = () => {
                                     <View style={ styles.ingredientInfoContainer }>
                                         <View style={ styles.ingredientNameContainer }>
                                             <Text style={ styles.ingredientName } numberOfLines={ 1 } ellipsizeMode="tail">{ ingredient.data.Item_name }</Text>
-                                            <Text style={ styles.ingredientLeft }>In store: { ingredient.Quantity }kg</Text>
+                                            <Text style={ styles.ingredientLeft }>In store: { gramsToKg(ingredient.Quantity, 1) }kg</Text>
                                         </View>
                                         <View style={ styles.ingredientPriceContainer }>
                                             <Text style={ styles.ingredientPrice }>₱{ (ingredient.Price ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 }) }</Text>

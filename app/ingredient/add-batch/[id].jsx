@@ -7,6 +7,7 @@ import FirebaseApp from '../../../helpers/FirebaseApp';
 import { useRouter } from 'expo-router';
 import moment from 'moment/moment';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { gramsToKg } from '../../../helpers/Converter';
 
 const AddBatch = () => {
 
@@ -106,9 +107,9 @@ const AddBatch = () => {
                 <View style={ styles.infoContainer }>
 
                     <View style={{ ...styles.infoItem, justifyContent: 'flex-start' }}>
-                        <Text style={ styles.infoLabel }>Kilos:</Text>
+                        <Text style={ styles.infoLabel }>Grams:</Text>
                         <TextInput style={{ ...styles.infoInput, width: 127 }} value={ quantity } onChangeText={ (input) => setQuantity(input) }/>
-                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>/{ history.reduce((total, current) => total + parseInt(current.item_quantity), 0) }kg</Text>
+                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>/{ gramsToKg(history.reduce((total, current) => total + parseInt(current.item_quantity), 0), 3) }grams</Text>
                     </View>
 
                     <View style={ styles.infoItem }>

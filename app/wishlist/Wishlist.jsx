@@ -49,6 +49,10 @@ const Wishlist = () => {
                 // Get item
                 const item = await FBApp.db.get_from_ref(COLLECTIONS.sale_items, list.Sale_id);
 
+                if (!item) {
+                    return null;
+                }
+
                 // Get data
                 item.data = await FBApp.db.get(COLLECTIONS.ingredients, {
                     column: 'ItemId',
@@ -57,7 +61,7 @@ const Wishlist = () => {
                 });
 
                 return item;
-            })));
+            }).filter(x => x)));
 
             // Set quantity
             setQuantity(wishlist.map(x => ({ [x.id]: x.Quantity })));
@@ -104,7 +108,7 @@ const Wishlist = () => {
         if (restaurants.length > 0) {
             fetchData();
         }
-    }, [restaurants]);console.log(quantity)
+    }, [restaurants]);
 
 
     return (
