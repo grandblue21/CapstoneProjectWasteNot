@@ -55,7 +55,7 @@ const AddBatch = () => {
             }
 
             // Update quantity
-            await FBApp.db.update(COLLECTIONS.ingredients, { total_quantity: history.reduce((total, current) => total + parseInt(current.item_quantity), 0) }, ingredient.id);
+            await FBApp.db.update(COLLECTIONS.ingredients, { total_quantity: history.reduce((total, current) => total + parseInt(current.item_quantity), parseInt(quantity)) }, ingredient.id);
 
             // Show notif
             ToastAndroid.showWithGravity(`New Batch of ${ ingredient.Item_name } Added`, ToastAndroid.LONG, ToastAndroid.TOP);

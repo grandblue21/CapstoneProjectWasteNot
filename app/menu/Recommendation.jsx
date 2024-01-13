@@ -7,12 +7,14 @@ import Navigation from '../../components/common/navigation/Navigation';
 import { SafeAreaView, Text, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { COLLECTIONS, COLORS, SIZES } from '../../constants';
 import FirebaseApp from '../../helpers/FirebaseApp';
+import getRecommendation from '../../hook/getRecommendation';
 
 const Recommendation = () => {
 
     const FBApp = new FirebaseApp();
     const { profile, isLoading } = getProfile();
     const { ingredients, isLoading: isLI, refetch } =  getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+    const recommendation = getRecommendation({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [recommendations, setRecommendations] = useState('');
     const [recipes, setRecipes] = useState([]);
     const [ingredientsWStock, setIngredientsWStock] = useState([]);
@@ -23,6 +25,13 @@ const Recommendation = () => {
             refetch();
         }
     }, [profile.adminId]);
+
+    useEffect(() => {
+        if (!isLoading) {
+            recommendation.refetch();
+            refetch();
+        }
+    }, [isLoading]);
 
     useEffect(() => {
 
@@ -60,80 +69,75 @@ const Recommendation = () => {
                 return { ...ingredient, stock: (history.length > 0 ? history.reduce((total, current) => total + parseInt(current.item_quantity), 0) : 0) }
             })));
 
-            const response = await axios.request(options);
-            setRecommendations('Possible recipes:');
-            setRecipes(JSON.parse(response.data.choices[0].message.content.substring(response.data.choices[0].message.content.indexOf(":") + 1).trim()));
+            // const response = await axios.request(options);
+            // setRecommendations('Possible recipes:');
+            // setRecipes(JSON.parse(response.data.choices[0].message.content.substring(response.data.choices[0].message.content.indexOf(":") + 1).trim()));
             
             // Set new recommendations
-            // setRecommendations('Possible recipes:');
-            // setRecipes([
-            //     {
-            //         "name": "Market Na Stir-Fry",
-            //         "ingredients": ["Market Na", "Chicken", "Vegetables", "Soy Sauce", "Garlic", "Ginger", "Oil"],
-            //         "instructions": ["Heat oil in a pan", "Add garlic and ginger, sauté until fragrant", "Add chicken and cook until browned", "Add Market Na and vegetables, stir-fry until tender", "Pour soy sauce and toss everything together", "Serve hot"]
-            //     },
-            //     {
-            //         "name": "Asian Chicken Curry",
-            //         "ingredients": ["Chicken", "Coconut Milk", "Curry Paste", "Potatoes", "Carrots", "Onion", "Garlic", "Ginger", "Fish Sauce", "Lime Juice"],
-            //         "instructions": ["Heat oil in a pot", "Add garlic, ginger, and onion, sauté until softened", "Add chicken and cook until browned", "Stir in curry paste and cook for a minute", "Add coconut milk, potatoes, carrots, fish sauce, and lime juice", "Simmer until chicken is cooked and vegetables are tender", "Serve with rice"]
-            //     },
-            //     {
-            //         "name": "Lahus Market Fried Rice",
-            //         "ingredients": ["Lahus Market", "Cooked Rice", "Shrimp", "Eggs", "Carrots", "Peas", "Onion", "Garlic", "Soy Sauce", "Sesame Oil"],
-            //         "instructions": ["Heat oil in a large skillet", "Add garlic and onion, sauté until fragrant", "Add shrimp and cook until pink", "Push shrimp to one side and pour beaten eggs on the other side", "Scramble eggs and mix with shrimp", "Add Lahus Market, carrots, peas, cooked rice, soy sauce, and sesame oil", "Stir-fry until well combined and heated through", "Serve hot"]
-            //     },
-            //     {
-            //         "name": "Shrimp Pad Thai",
-            //         "ingredients": ["Shrimp", "Rice Noodles", "Tofu", "Eggs", "Bean Sprouts", "Garlic", "Shallots", "Peanuts", "Fish Sauce", "Tamarind Paste", "Sugar", "Lime Juice"],
-            //         "instructions": ["Soak rice noodles in hot water until softened", "Heat oil in a wok or large skillet", "Add garlic and shallots, sauté until fragrant", "Add shrimp and cook until pink", "Push shrimp to one side and pour beaten eggs on the other side", "Scramble eggs and mix with shrimp", "Add rice noodles, tofu, bean sprouts, peanuts, fish sauce, tamarind paste, sugar, and lime juice", "Stir-fry until everything is well combined and heated through", "Serve with lime wedges"]
-            //     },
-            //     {
-            //         "name": "Chicken and Shrimp Dumplings",
-            //         "ingredients": ["Chicken", "Shrimp", "Wonton Wrappers", "Garlic", "Ginger", "Soy Sauce", "Sesame Oil", "Green Onions"],
-            //         "instructions": ["In a bowl, mix together chicken, shrimp, garlic, ginger, soy sauce, sesame oil, and green onions", "Place a spoonful of the mixture onto a wonton wrapper", "Moisten the edges of the wrapper with water, then fold and seal the dumpling", "Repeat with remaining mixture and wrappers", "Steam the dumplings for about 10-12 minutes", "Serve hot with dipping sauce"]
-            //     }
-            // ]);
+            setRecommendations('Possible recipes:');
+            setRecipes([
+                {
+                  "name": "Market Na Stir-Fry",
+                  "ingredients": ["Market Na", "Chicken"],
+                  "instructions": ["1. Cut the chicken into small pieces.", "2. Heat oil in a pan and stir-fry the chicken until cooked.", "3. Add the Market Na and continue stir-frying for a few minutes until tender.", "4. Serve hot and enjoy!"]
+                },
+                {
+                  "name": "Lahus Market Soup",
+                  "ingredients": ["Lahus Market", "Chicken"],
+                  "instructions": ["1. Boil chicken in a pot of water until cooked.", "2. Add the Lahus Market and simmer for a few minutes until soft.", "3. Season with salt and pepper to taste.", "4. Serve hot as a comforting soup."]
+                },
+                {
+                  "name": "Shrimp Fried Rice",
+                  "ingredients": ["Shrimp", "Market Na"],
+                  "instructions": ["1. Cook the shrimp in a pan until pink and cooked through.", "2. Set aside the shrimp.", "3. In the same pan, stir-fry Market Na until tender.", "4. Add cooked rice and stir-fry for a few minutes.", "5. Finally, add the cooked shrimp and mix well.", "6. Serve hot and enjoy a delicious shrimp fried rice."]
+                }
+            ]);
 
             // Source 2
-            // [
-            //     {
-            //       "name": "Market Na Stir-Fry",
-            //       "ingredients": ["Market Na", "Chicken"],
-            //       "instructions": ["1. Cut the chicken into small pieces.", "2. Heat oil in a pan and stir-fry the chicken until cooked.", "3. Add the Market Na and continue stir-frying for a few minutes until tender.", "4. Serve hot and enjoy!"]
-            //     },
-            //     {
-            //       "name": "Lahus Market Soup",
-            //       "ingredients": ["Lahus Market", "Chicken"],
-            //       "instructions": ["1. Boil chicken in a pot of water until cooked.", "2. Add the Lahus Market and simmer for a few minutes until soft.", "3. Season with salt and pepper to taste.", "4. Serve hot as a comforting soup."]
-            //     },
-            //     {
-            //       "name": "Shrimp Fried Rice",
-            //       "ingredients": ["Shrimp", "Market Na"],
-            //       "instructions": ["1. Cook the shrimp in a pan until pink and cooked through.", "2. Set aside the shrimp.", "3. In the same pan, stir-fry Market Na until tender.", "4. Add cooked rice and stir-fry for a few minutes.", "5. Finally, add the cooked shrimp and mix well.", "6. Serve hot and enjoy a delicious shrimp fried rice."]
-            //     }
-            //   ]
-            //   HERE IS YOUR JSON FORMAT:
-            //   [
-            //     {
-            //       "name": "Market Na Stir-Fry",
-            //       "ingredients": ["Market Na", "Chicken"],
-            //       "instructions": ["1. Slice the chicken into thin strips.", "2. Heat a wok or large pan over high heat.", "3. Add a tablespoon of oil to the pan and swirl to coat.", "4. Add the chicken to the pan and stir-fry until cooked through.", "5. Cut the Market Na into bite-sized pieces and add it to the pan.", "6. Continue stir-frying until the Market Na is tender.", "7. Season with your choice of stir-fry sauce or soy sauce.", "8. Serve hot and enjoy!"]
-            //     },
-            //     {
-            //       "name": "Lahus Market Fried Rice",
-            //       "ingredients": ["Lahus Market", "Chicken", "Shrimp"],
-            //       "instructions": ["1. Cook the Lahus Market according to package instructions and set aside.", "2. Heat a tablespoon of oil in a large skillet or wok over medium-high heat.", "3. Add the chicken and shrimp to the skillet and cook until they are no longer pink.", "4. Push the chicken and shrimp to one side of the skillet and add cooked Lahus Market to the other side.", "5. Stir-fry for a few minutes to heat through.", "6. Mix everything together in the skillet and season with salt, pepper, and your choice of soy sauce or other seasonings.", "7. Cook for another few minutes until the flavors are well combined.", "8. Serve hot as a delicious fried rice dish!"]
-            //     },
-            //     {
-            //       "name": "Shrimp and Market Na Soup",
-            //       "ingredients": ["Market Na", "Shrimp"],
-            //       "instructions": ["1. Peel and devein the shrimp, then set aside.", "2. Cut the Market Na into small pieces.", "3. Heat a pot or saucepan over medium heat and add a tablespoon of oil.", "4. Sauté the shrimp in the pot until they turn pink and are cooked through.", "5. Add the Market Na to the pot and stir-fry for a few minutes.", "6. Pour in enough water or chicken broth to cover the ingredients.", "7. Bring the soup to a boil and then reduce heat to simmer for about 10 minutes.", "8. Season the soup with salt, pepper, and any other desired seasonings.", "9. Serve hot as a comforting and flavorful shrimp and Market Na soup!"]
-            //     }
-            //   ]
+        //     [
+        //       {
+        //         "name": "Market Na Stir-Fry",
+        //         "ingredients": ["Market Na", "Chicken"],
+        //         "instructions": ["1. Slice the chicken into thin strips.", "2. Heat a wok or large pan over high heat.", "3. Add a tablespoon of oil to the pan and swirl to coat.", "4. Add the chicken to the pan and stir-fry until cooked through.", "5. Cut the Market Na into bite-sized pieces and add it to the pan.", "6. Continue stir-frying until the Market Na is tender.", "7. Season with your choice of stir-fry sauce or soy sauce.", "8. Serve hot and enjoy!"]
+        //       },
+        //       {
+        //         "name": "Lahus Market Fried Rice",
+        //         "ingredients": ["Lahus Market", "Chicken", "Shrimp"],
+        //         "instructions": ["1. Cook the Lahus Market according to package instructions and set aside.", "2. Heat a tablespoon of oil in a large skillet or wok over medium-high heat.", "3. Add the chicken and shrimp to the skillet and cook until they are no longer pink.", "4. Push the chicken and shrimp to one side of the skillet and add cooked Lahus Market to the other side.", "5. Stir-fry for a few minutes to heat through.", "6. Mix everything together in the skillet and season with salt, pepper, and your choice of soy sauce or other seasonings.", "7. Cook for another few minutes until the flavors are well combined.", "8. Serve hot as a delicious fried rice dish!"]
+        //       },
+        //       {
+        //         "name": "Shrimp and Market Na Soup",
+        //         "ingredients": ["Market Na", "Shrimp"],
+        //         "instructions": ["1. Peel and devein the shrimp, then set aside.", "2. Cut the Market Na into small pieces.", "3. Heat a pot or saucepan over medium heat and add a tablespoon of oil.", "4. Sauté the shrimp in the pot until they turn pink and are cooked through.", "5. Add the Market Na to the pot and stir-fry for a few minutes.", "6. Pour in enough water or chicken broth to cover the ingredients.", "7. Bring the soup to a boil and then reduce heat to simmer for about 10 minutes.", "8. Season the soup with salt, pepper, and any other desired seasonings.", "9. Serve hot as a comforting and flavorful shrimp and Market Na soup!"]
+        //       }
+        //   ]
+
+            // Get existing
+            const existing = await FBApp.db.get(COLLECTIONS.recommendation, { column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+
+            // Update if existing
+            if (existing) {
+                FBApp.db.update(COLLECTIONS.recommendation, {
+                    ingredients: ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.ItemId),
+                    recipes: recipes
+                });
+            }
+            // Save
+            else {
+                FBApp.db.insert(COLLECTIONS.recommendation, {
+                    Restaurant_id: profile.adminId,
+                    ingredients: ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.ItemId),
+                    recipes: recipes
+                });
+            }
         }
 
         // Check if there are ingredients
-        if (isLI) {
+        if (!recommendation.isLoading && recommendation.recipes) {
+            setRecommendations('Possible recipes:');
+            setRecipes(recommendation.recipes);
+        }
+        else if (isLI) {
             setRecommendations('Analyzing ingredients and getting possible recipes...');
         }
         else if (!isLI && ingredients.length > 0) {
@@ -142,7 +146,8 @@ const Recommendation = () => {
         else {
             setRecommendations('No ingredients available');
         }
-    }, [isLI, ingredients]);
+    }, [isLI, ingredients]);console.log(recommendation.recipes)
+    
 
     return (
         <SafeAreaView style={styles.container}>

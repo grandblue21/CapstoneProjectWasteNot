@@ -7,7 +7,8 @@ const COLLECTIONS = {
     ingredients_history: 'ingredients_history',
     sale_items: 'sale_items',
     menu: 'menu_dish',
-    wishlist: 'wishlist'
+    wishlist: 'wishlist',
+    recommendation: 'recommendations'
 }
 
 const ROLES = {
