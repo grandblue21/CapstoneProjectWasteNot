@@ -14,7 +14,7 @@ const Menu = () => {
 
     const router = useRouter();
     const { profile } = getProfile();
-    const { menu } = getMenu();
+    const { menu, isLoading: isLM, refetch } = getMenu({ column: 'userId', comparison: '==', value: profile.adminId});
     const [selectedCategory, setSelectedCategory] = useState(0);
     const [menuList, setMenuList] = useState(menu);
     const handleCategoryChange = (index, category) => {
@@ -27,14 +27,26 @@ const Menu = () => {
     useEffect(() => {
         
         const fetchData = () => {
+            refetch();
+        }
+
+        // Check if both are fetched
+        if (!profile.isLoading) {
+            fetchData();
+        }
+    }, [profile]);
+
+    useEffect(() => {
+        
+        const fetchData = () => {
             setMenuList(menu);
         }
 
         // Check if both are fetched
-        if (!profile.isLoading && !menu.isLoading) {
+        if (!isLM) {
             fetchData();
         }
-    }, [profile, menu]);
+    }, [isLM]);
   
     return (
         <SafeAreaView style={ styles.container }>
