@@ -74,9 +74,9 @@ const Chatbot = () => {
             url: 'https://simple-chatgpt-api.p.rapidapi.com/ask',
             headers: {
                 'content-type': 'application/json',
-                'X-RapidAPI-Key': 'afab6284a5mshae6dd43c22e53a1p14328bjsn3e3a0c4e172d',
+                'X-RapidAPI-Key': '98aa04f06cmsh08fad60df460757p169c40jsn26176e1834b4',
                 'X-RapidAPI-Host': 'simple-chatgpt-api.p.rapidapi.com'
-            },
+              },
             data: {
                 question: 'As a Chef, ' + inputQuery
             }

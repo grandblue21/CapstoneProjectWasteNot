@@ -42,9 +42,9 @@ const Recommendation = () => {
             url: 'https://chatgpt-openai1.p.rapidapi.com/ask',
             headers: {
                 'content-type': 'application/json',
-                'X-RapidAPI-Key': 'afab6284a5mshae6dd43c22e53a1p14328bjsn3e3a0c4e172d',
+                'X-RapidAPI-Key': '08d5a406fcmsh644b6df804621e7p13cfc5jsn51b8a83e0044',
                 'X-RapidAPI-Host': 'chatgpt-openai1.p.rapidapi.com'
-            },
+              },
             data: {
                 query: `As a Chef, write three Asian recipes using only the ingredients mentioned. I have ` + (ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.Item_name).join(', ')) + `. Reply including raw minified array json in the end with format: [{name: 'string', ingredients: 'array', instructions: 'array'}] after a phrase capitalized "HERE IS YOUR JSON FORMAT:"`
             }
