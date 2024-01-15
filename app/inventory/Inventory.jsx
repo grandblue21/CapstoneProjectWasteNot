@@ -10,6 +10,8 @@ import getIngredients from '../../hook/getIngredients';
 import getProfile from '../../hook/getProfile';
 import { CATEGORIES, COLLECTIONS } from '../../constants';
 import FirebaseApp from '../../helpers/FirebaseApp';
+import { gramsToKg } from '../../helpers/Converter';
+import { FontAwesome } from '@expo/vector-icons';
 
 const Inventory = () => {
 
@@ -86,7 +88,7 @@ const Inventory = () => {
                                     <View
                                         style={ [
                                             styles.statusIndicator,
-                                            { backgroundColor: item.stock >= 10 ? 'green' : (item.stock > 0 ? 'yellow' : 'red') },
+                                            { backgroundColor: (item.quantity_left / item.total_quantity) * 100 >= 10 ? 'green' : (item.stock > 0 ? 'yellow' : 'red') },
                                         ] }
                                     />
                                     {/* Item Name and Picture */}
@@ -97,7 +99,10 @@ const Inventory = () => {
                                         </View>
                                     </View>
                                     {/* In Stock Label with kilograms */}
-                                    <Text style={ styles.inStockLabel }>{ item.stock / 1000 } kg </Text>
+                                    <Text style={ styles.inStockLabel }>{ gramsToKg(item.quantity_left, 1) } kg </Text>
+                                    <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/market/add-saleitem/${item.ItemId}`) }>
+                                        <FontAwesome name="cart-plus" size={ 20 } color="#389F4F" />
+                                    </TouchableOpacity>
                                     <TouchableOpacity style={ { paddingLeft: 10 } } onPress={ () => router.replace(`/ingredient/history/${item.id}`) }>
                                         <AntDesign name="doubleright" size={ 20 } color="#389F4F" />
                                     </TouchableOpacity>

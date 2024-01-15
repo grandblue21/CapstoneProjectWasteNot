@@ -9,20 +9,22 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment/moment';
 import getIngredients from '../../../hook/getIngredients';
 import { useGlobalSearchParams } from 'expo-router';
+import { gramsToKg } from '../../../helpers/Converter';
 
 const EditSaleItem = () => {
 
     const router = useRouter();
     const { id } = useGlobalSearchParams();
     const FBApp = new FirebaseApp();
-    const { profile } = getProfile();
-    const { ingredients } = getIngredients();
+    const { profile, isLoading } = getProfile();
+    const { ingredients, refetch } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [saleItem, setSaleItem] = useState({});
     const [ingredientList, setIngredientList] = useState([]);
     const [item, setItem] = useState(null);
     const [price, setPrice] = useState(null);
     const [quantity, setQuantity] = useState('');
     const [open, setOpen] = useState(false);
+    const [ingredient, setIngredient] = useState({});
     const [itemImage, setItemImage] = useState('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images');
     const handleItemChange = (selectedItem) => {
 
@@ -35,7 +37,7 @@ const EditSaleItem = () => {
         }
 
         // Change image
-        setItemImage(selected.image);
+        setIngredient(selected);
     };
     const handleConfirm = async () => {
 
@@ -57,12 +59,21 @@ const EditSaleItem = () => {
                 }
             });
 
+            // Check if not more than quantity
+            if (parseInt(quantity) > parseInt(ingredient.quantity_left) + parseInt(saleItem.Quantity)) {
+                throw 'Sale quantity is more than what is left';
+            }
+
+            // Update market item
             const result = await FBApp.db.update(COLLECTIONS.sale_items, data, id);
 
-            // Check if added
+            // Check if updated
             if (!result) {
                 throw 'Failed to update market item';
             }
+
+            // Update ingredient left
+            await FBApp.db.update(COLLECTIONS.ingredients, { quantity_left: (parseInt(ingredient.quantity_left) + parseInt(saleItem.Quantity)) - parseInt(quantity) }, ingredient.id);
 
             // Show notif
             ToastAndroid.showWithGravity('Ingredient for Market Sale Item Updated', ToastAndroid.LONG, ToastAndroid.TOP);
@@ -101,7 +112,14 @@ const EditSaleItem = () => {
 
     useEffect(() => {
         setIngredientList(ingredients.map(x => ({ label: x.Item_name, value: x.ItemId })));
+        handleItemChange(id);
     }, [ingredients]);
+
+    useEffect(() => {
+        if (!isLoading) {
+            refetch();
+        }
+    }, [isLoading]);
 
     return <>
         <SafeAreaView style={ styles.container }>
@@ -119,6 +137,7 @@ const EditSaleItem = () => {
                     <View style={ styles.infoItem }>
                         <Text style={ { ...styles.infoLabel, width: '40%'} }>Ingredient:</Text>
                         <DropDownPicker
+                            disabled={ true }
                             open={ open }
                             value={ item }
                             items={ ingredientList }
@@ -138,7 +157,8 @@ const EditSaleItem = () => {
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Quantity:</Text>
-                        <TextInput style={ styles.infoInput } value={ quantity } placeholder="0" onChangeText={ (input) => setQuantity(input) }/>
+                        <TextInput style={{ ...styles.infoInput, width: '50%' }} value={ quantity } placeholder="0 grams" onChangeText={ (input) => setQuantity(input) }/>
+                        <Text style={{ fontSize: 30 }}>/{ gramsToKg(ingredient.quantity_left ? parseInt(ingredient.quantity_left) + parseInt(saleItem.Quantity) : 0, 2) }kg left</Text>
                     </View>
                 </View>
 

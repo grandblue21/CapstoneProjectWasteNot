@@ -1,23 +1,24 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ToastAndroid, Image } from 'react-native';
-import { COLORS, SIZES, COLLECTIONS } from '../../constants'
-import Header from '../../components/common/header/Header';
-import FirebaseApp from '../../helpers/FirebaseApp';
-import { useRouter } from 'expo-router';
-import getProfile from '../../hook/getProfile';
+import { COLORS, SIZES, COLLECTIONS } from '../../../constants'
+import Header from '../../../components/common/header/Header';
+import FirebaseApp from '../../../helpers/FirebaseApp';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
+import getProfile from '../../../hook/getProfile';
 import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment/moment';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import getIngredients from '../../hook/getIngredients';
-import { gramsToKg } from '../../helpers/Converter';
+import getIngredients from '../../../hook/getIngredients';
+import { gramsToKg } from '../../../helpers/Converter';
 
-const AddSaleItem = () => {
+const AddSale = () => {
 
     const router = useRouter();
+    const { id } = useGlobalSearchParams();
     const { profile, isLoading } = getProfile();
     const { ingredients, refetch } = getIngredients({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [ingredientList, setIngredientList] = useState([]);
-    const [item, setItem] = useState(null);
+    const [item, setItem] = useState(id);
     const [price, setPrice] = useState(null);
     const [quantity, setQuantity] = useState('');
     const [open, setOpen] = useState(false);
@@ -79,7 +80,7 @@ const AddSaleItem = () => {
                 Staff_id: profile.id,
                 Restaurant_Id: profile.adminId
             });
-            
+
             // Minus quantity
             FBApp.db.update(COLLECTIONS.ingredients, { quantity_left: parseInt(ingredient.quantity_left) - parseInt(quantity) }, ingredient.id);
 
@@ -104,12 +105,13 @@ const AddSaleItem = () => {
 
     useEffect(() => {
         setIngredientList(ingredients.map(x => ({ label: x.Item_name, value: x.ItemId })));
+        handleItemChange(id);
     }, [ingredients]);
 
     return <>
         <SafeAreaView style={ styles.container }>
 
-            <Header hideTitle={ true } hideNotification={ true } showBack={{ show: true, handleBack: () => router.replace('/market/StaffMarket') }}/>
+            <Header hideTitle={ true } hideNotification={ true } showBack={{ show: true, handleBack: () => router.replace('/inventory/Inventory') }}/>
 
             <View style={ styles.body }>
 
@@ -122,6 +124,7 @@ const AddSaleItem = () => {
                     <View style={ styles.infoItem }>
                         <Text style={ { ...styles.infoLabel, width: '40%'} }>Ingredient:</Text>
                         <DropDownPicker
+                            disabled= {true}
                             open={ open }
                             value={ item }
                             items={ ingredientList }
@@ -228,4 +231,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default AddSaleItem;
+export default AddSale;

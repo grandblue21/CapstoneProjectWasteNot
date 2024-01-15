@@ -9,6 +9,7 @@ import getProfile from '../../../hook/getProfile';
 import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment/moment';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Checkbox from 'expo-checkbox';
 
 const Ingredient = () => {
 
@@ -18,6 +19,7 @@ const Ingredient = () => {
     const [quantity, setQuantity] = useState('');
     const [expDate, setExpDate] = useState(new Date(moment().format('YYYY-MM-DD')));
     const [price, setPrice] = useState(null);
+    const [isMarketItem, setIsMarketItem] = useState(false);
     const { profile } = getProfile();
     const [open, setOpen] = useState(false);
     const [category, setCategory] = useState(null);
@@ -37,6 +39,7 @@ const Ingredient = () => {
                 Restaurant_id: profile.adminId,
                 category: category,
                 image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images',
+                quantity_left: isMarketItem ? 0 : quantity,
                 total_quantity: quantity
             }
 
@@ -46,6 +49,11 @@ const Ingredient = () => {
                     throw 'Fill in required fields';
                 }
             });
+
+            // Market additional check
+            if (isMarketItem && !price) {
+                throw 'Price is required for Market Items';
+            }
             
             // Set Firebase Instance
             const FBApp = new FirebaseApp();
@@ -71,34 +79,39 @@ const Ingredient = () => {
                 throw 'Failed to add ingredient';
             }
 
-            // Insert Market Request Item
-            const request = await FBApp.db.insert(COLLECTIONS.market_request, {
-                item_id: id,
-                Date: moment().format('YYYY-MM-DD'),
-                price: price,
-                item_quantity: quantity,
-                Staff_id: profile.id,
-                Restaurant_id: profile.adminId
-            });
+            // Include market if for sale
+            if (isMarketItem) {
 
-            // Check if added
-            if (!request) {
-                throw 'Failed to add ingredient';
-            }
+                // Insert Market Request Item
+                const request = await FBApp.db.insert(COLLECTIONS.market_request, {
+                    item_id: id,
+                    Date: moment().format('YYYY-MM-DD'),
+                    Item_name: name,
+                    price: price,
+                    item_quantity: quantity,
+                    Staff_id: profile.id,
+                    Restaurant_id: profile.adminId
+                });
 
-            // Insert Sale Item
-            const saleItem = await FBApp.db.insert(COLLECTIONS.sale_items, {
-                Date: moment().format('YYYY-MM-DD'),
-                ItemId: id,
-                Price: price,
-                Quantity: quantity,
-                Staff_id: profile.id,
-                Restaurant_Id: profile.adminId
-            });
-            
-            // Check if added
-            if (!saleItem) {
-                throw 'Failed to add ingredient';
+                // Check if added
+                if (!request) {
+                    throw 'Failed to add ingredient';
+                }
+
+                // Insert Sale Item
+                const saleItem = await FBApp.db.insert(COLLECTIONS.sale_items, {
+                    Date: moment().format('YYYY-MM-DD'),
+                    ItemId: id,
+                    Price: price,
+                    Quantity: quantity,
+                    Staff_id: profile.id,
+                    Restaurant_Id: profile.adminId
+                });
+                
+                // Check if added
+                if (!saleItem) {
+                    throw 'Failed to add ingredient';
+                }
             }
 
             // Show notif
@@ -156,17 +169,24 @@ const Ingredient = () => {
                         <TextInput style={ styles.infoInput } value={ quantity } placeholder="0 grams" onChangeText={ (input) => setQuantity(input) }/>
                     </View>
 
-                    <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>Price:</Text>
-                        <TextInput style={ styles.infoInput } value={ price } placeholder="₱0.00" onChangeText={ (input) => setPrice(input) }/>
-                    </View>
+                    {
+                        isMarketItem && 
+                        <View style={ styles.infoItem }>
+                            <Text style={ styles.infoLabel }>Price:</Text>
+                            <TextInput style={ styles.infoInput } value={ price } placeholder="₱0.00" onChangeText={ (input) => setPrice(input) }/>
+                        </View>
+                    }
 
                     <View style={ styles.infoItem }>
                         <Text style={ styles.infoLabel }>Expiry:</Text>
                         <TextInput style={ styles.infoInput } value={ moment(expDate).format('MMMM D, YYYY') } placeholder="Expiration Date" onChangeText={ (input) => setExpDate(input) } editable={ false} />
                     </View>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginRight: 20 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20 }}>
+                        <View style={{ flexDirection: 'row', paddingLeft: 20 }}>
+                            <Checkbox style={styles.checkbox} value={ isMarketItem } onValueChange={ setIsMarketItem }/>
+                            <Text style={{ paddingLeft: 5 }}>Is for sale</Text>
+                        </View>
                         <TouchableOpacity onPress={ () => setShow(true) }>
                             <Text>Show Calendar</Text>
                             {(
