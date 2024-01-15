@@ -42,6 +42,7 @@ const AddSale = () => {
             
             const data = {
                 ItemId: item,
+                Item_name: ingredient.name,
                 Date: moment().format('YYYY-MM-DD'),
                 Price: price,
                 Quantity: quantity,
@@ -75,6 +76,7 @@ const AddSale = () => {
             await FBApp.db.insert(COLLECTIONS.sale_items, {
                 Date: moment().format('YYYY-MM-DD'),
                 ItemId: ingredient.ItemId,
+                Item_name: ingredient.name,
                 Price: price,
                 Quantity: quantity,
                 Staff_id: profile.id,
