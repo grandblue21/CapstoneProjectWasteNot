@@ -7,7 +7,8 @@
     "plugins": [
       "expo-router",
       [
-        "expo-barcode-scanner", {
+        "expo-barcode-scanner",
+        {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
         }
       ],
@@ -19,6 +20,14 @@
       ]
     ],
     "name": "WasteNot",
-    "slug": "WasteNot"
+    "slug": "WasteNot",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c68af3c9-dd45-4e12-8e5d-9de9284b96d3"
+      }
+    }
   }
 }
