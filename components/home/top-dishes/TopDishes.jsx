@@ -10,7 +10,7 @@ const TopDishes = () => {
 
     const router = useRouter();
     const { profile } = getProfile();
-    const { menu } = getMenu();
+    const { menu, isLoading: isLM, refetch } = getMenu({ column: 'userId', comparison: '==', value: profile.adminId});
     const [menuList, setMenuList] = useState([]);
 
     useEffect(() => {
