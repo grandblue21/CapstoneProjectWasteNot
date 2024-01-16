@@ -86,7 +86,7 @@ const Ingredient = () => {
                 const request = await FBApp.db.insert(COLLECTIONS.market_request, {
                     item_id: id,
                     Date: moment().format('YYYY-MM-DD'),
-                    Item_name: name,
+                    Item_name: ingredient.Item_name,
                     price: price,
                     item_quantity: quantity,
                     Staff_id: profile.id,
@@ -102,7 +102,7 @@ const Ingredient = () => {
                 const saleItem = await FBApp.db.insert(COLLECTIONS.sale_items, {
                     Date: moment().format('YYYY-MM-DD'),
                     ItemId: id,
-                    Item_name: name,
+                    Item_name: ingredient.Item_name,
                     Price: price,
                     Quantity: quantity,
                     Staff_id: profile.id,
