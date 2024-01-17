@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ToastAndroid, Image } from 'react-native';
 import { useGlobalSearchParams } from 'expo-router';
-import { COLORS, SIZES, COLLECTIONS, CATEGORIES } from '../../../constants';
+import { COLORS, SIZES, COLLECTIONS, CATEGORIES, INGREDIENT_CLASSIFICATIONS } from '../../../constants';
 import Header from '../../../components/common/header/Header';
 import FirebaseApp from '../../../helpers/FirebaseApp';
 import { useRouter } from 'expo-router';
@@ -10,6 +10,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment/moment';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Checkbox from 'expo-checkbox';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const Ingredient = () => {
 
@@ -20,6 +21,7 @@ const Ingredient = () => {
     const [expDate, setExpDate] = useState(new Date(moment().format('YYYY-MM-DD')));
     const [price, setPrice] = useState(null);
     const [isMarketItem, setIsMarketItem] = useState(false);
+    const [classifications, setClassifications] = useState(INGREDIENT_CLASSIFICATIONS.map((x) => ({ name: x.name, checked: false })));
     const { profile } = getProfile();
     const [open, setOpen] = useState(false);
     const [category, setCategory] = useState(null);
@@ -40,7 +42,13 @@ const Ingredient = () => {
                 category: category,
                 image: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images',
                 quantity_left: isMarketItem ? 0 : quantity,
-                total_quantity: quantity
+                total_quantity: quantity,
+                classifications: classifications.filter(x => x.checked).map(x => x.name)
+            }
+
+            // Check classification
+            if (classifications.filter(x => x.checked).length == 0) {
+                throw 'Specify atleast one ingredient classification';
             }
 
             // Check data
@@ -135,78 +143,106 @@ const Ingredient = () => {
 
             <View style={ styles.body }>
 
-                <View style={ styles.imageContainer }>
-                    <Image src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images" style={ styles.image }></Image>
-                </View>
+                <ScrollView style={{ flex: 1 }}>
 
-                <View style={ styles.infoContainer }>
-
-                    <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>ID:</Text>
-                        <TextInput style={ styles.infoInput } value={ id } editable={ false }/>
+                    <View style={ styles.imageContainer }>
+                        <Image src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Foppenheimerusa.com%2Fwp-content%2Fthemes%2Foppenheimer%2Fassets%2Fimages%2Fproduct-placeholder.jpg&f=1&nofb=1&ipt=66fdf705465b3aaaa8e0b1458f5450cd7d60dd360b48ed5e8679d0293ce68a01&ipo=images" style={ styles.image }></Image>
                     </View>
 
-                    <View style={ styles.infoItem }>
-                        <Text style={ { ...styles.infoLabel, width: '40%'} }>Category:</Text>
-                        <DropDownPicker
-                            open={ open }
-                            value={ category }
-                            items={ items }
-                            setOpen={ setOpen }
-                            setValue={ setCategory }
-                            setItems={ setItems }
-                            placeholder="Select Category"
-                            style={ styles.infoInput }
-                        />
-                    </View>
+                    <View style={ styles.infoContainer }>
 
-                    <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>Name:</Text>
-                        <TextInput style={ styles.infoInput } value={ name } placeholder="Name" onChangeText={ (input) => setName(input) }/>
-                    </View>
-
-                    <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>Quantity:</Text>
-                        <TextInput style={ styles.infoInput } value={ quantity } placeholder="0 grams" onChangeText={ (input) => setQuantity(input) }/>
-                    </View>
-
-                    {
-                        isMarketItem && 
                         <View style={ styles.infoItem }>
-                            <Text style={ styles.infoLabel }>Price:</Text>
-                            <TextInput style={ styles.infoInput } value={ price } placeholder="₱0.00" onChangeText={ (input) => setPrice(input) }/>
+                            <Text style={ styles.infoLabel }>ID:</Text>
+                            <TextInput style={ styles.infoInput } value={ id } editable={ false }/>
                         </View>
-                    }
 
-                    <View style={ styles.infoItem }>
-                        <Text style={ styles.infoLabel }>Expiry:</Text>
-                        <TextInput style={ styles.infoInput } value={ moment(expDate).format('MMMM D, YYYY') } placeholder="Expiration Date" onChangeText={ (input) => setExpDate(input) } editable={ false} />
+                        <View style={ styles.infoItem }>
+                            <Text style={ { ...styles.infoLabel, width: '40%'} }>Category:</Text>
+                            <DropDownPicker
+                                open={ open }
+                                value={ category }
+                                items={ items }
+                                setOpen={ setOpen }
+                                setValue={ setCategory }
+                                setItems={ setItems }
+                                placeholder="Select Category"
+                                style={ styles.infoInput }
+                            />
+                        </View>
+
+                        <View style={ styles.infoItem }>
+                            <Text style={ styles.infoLabel }>Name:</Text>
+                            <TextInput style={ styles.infoInput } value={ name } placeholder="Name" onChangeText={ (input) => setName(input) }/>
+                        </View>
+
+                        <View style={ styles.infoItem }>
+                            <Text style={ styles.infoLabel }>Quantity:</Text>
+                            <TextInput style={ styles.infoInput } value={ quantity } placeholder="0 grams" onChangeText={ (input) => setQuantity(input) }/>
+                        </View>
+
+                        {
+                            isMarketItem && 
+                            <View style={ styles.infoItem }>
+                                <Text style={ styles.infoLabel }>Price:</Text>
+                                <TextInput style={ styles.infoInput } value={ price } placeholder="₱0.00" onChangeText={ (input) => setPrice(input) }/>
+                            </View>
+                        }
+
+                        <View style={ styles.infoItem }>
+                            <Text style={ styles.infoLabel }>Expiry:</Text>
+                            <TextInput style={ styles.infoInput } value={ moment(expDate).format('MMMM D, YYYY') } placeholder="Expiration Date" onChangeText={ (input) => setExpDate(input) } editable={ false} />
+                        </View>
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20, marginBottom: 20 }}>
+                            <View style={{ flexDirection: 'row', paddingLeft: 20 }}>
+                                <Checkbox style={styles.checkbox} value={ isMarketItem } onValueChange={ setIsMarketItem }/>
+                                <Text style={{ paddingLeft: 5 }}>Is for sale</Text>
+                            </View>
+                            <TouchableOpacity onPress={ () => setShow(true) }>
+                                <Text>Show Calendar</Text>
+                                {(
+                                    show && <DateTimePicker
+                                        value={ expDate }
+                                        mode="date"
+                                        minimumDate={ moment().toDate() }
+                                        onChange={ onChange }
+                                    />
+                                )}
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={{ marginLeft: 20 }}>
+                            <Text style={{ ...styles.infoLabel, width: '100%', textAlign: 'left', marginBottom: 10 }}>Classification</Text>
+                            {
+                                INGREDIENT_CLASSIFICATIONS.map((classification, index) => (
+                                    <View style={{ flexDirection: 'row', paddingLeft: 20, marginBottom: 10 }}>
+                                        <Checkbox style={styles.checkbox} value={ classifications[index].checked } onValueChange={ (isChecked) => {
+
+                                            setClassifications(classifications.map((x, i) => {
+
+                                                // Check if current
+                                                if (index == i) {
+                                                    x.checked = isChecked;
+                                                }
+
+                                                return x;
+                                            }));
+
+                                        } }/>
+                                        <Text style={{ paddingLeft: 5 }}>{ classification.name }</Text>
+                                    </View>
+                                ))
+                            }
+                        </View>
                     </View>
-
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginRight: 20 }}>
-                        <View style={{ flexDirection: 'row', paddingLeft: 20 }}>
-                            <Checkbox style={styles.checkbox} value={ isMarketItem } onValueChange={ setIsMarketItem }/>
-                            <Text style={{ paddingLeft: 5 }}>Is for sale</Text>
-                        </View>
-                        <TouchableOpacity onPress={ () => setShow(true) }>
-                            <Text>Show Calendar</Text>
-                            {(
-                                show && <DateTimePicker
-                                    value={ expDate }
-                                    mode="date"
-                                    minimumDate={ moment().toDate() }
-                                    onChange={ onChange }
-                                />
-                            )}
+                    
+                    <View style={ styles.buttonContainer }>
+                        <TouchableOpacity style={ styles.confirmButton } onPress={ handleConfirm }>
+                            <Text style={ styles.buttonText }>Confirm</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
 
-                <View style={ styles.buttonContainer }>
-                    <TouchableOpacity style={ styles.confirmButton } onPress={ handleConfirm }>
-                        <Text style={ styles.buttonText }>Confirm</Text>
-                    </TouchableOpacity>
-                </View>
+                </ScrollView>
 
             </View>
 
@@ -235,7 +271,8 @@ const styles = StyleSheet.create({
         borderRadius: 94
     },
     infoContainer: {
-        flex: 1
+        flex: 1,
+        marginBottom: 30
     },
     infoItem: {
         flexDirection: 'row',

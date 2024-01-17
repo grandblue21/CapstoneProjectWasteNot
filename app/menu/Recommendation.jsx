@@ -5,7 +5,7 @@ import axios from 'axios';
 import { AntDesign } from '@expo/vector-icons';
 import Navigation from '../../components/common/navigation/Navigation';
 import { SafeAreaView, Text, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { COLLECTIONS, COLORS, SIZES } from '../../constants';
+import { COLLECTIONS, COLORS, SIZES, INGREDIENT_CLASSIFICATIONS } from '../../constants';
 import FirebaseApp from '../../helpers/FirebaseApp';
 import getRecommendation from '../../hook/getRecommendation';
 
@@ -17,8 +17,8 @@ const Recommendation = () => {
     const recommendation = getRecommendation({ column: 'Restaurant_id', comparison: '==', value: profile.adminId });
     const [recommendations, setRecommendations] = useState('');
     const [recipes, setRecipes] = useState([]);
-    const [ingredientsWStock, setIngredientsWStock] = useState([]);
     const [recFromDb, setRecFromDb] = useState(true);
+
 
     useEffect(() => {
         // Refetch if profile is loaded
@@ -37,54 +37,94 @@ const Recommendation = () => {
 
     useEffect(() => {
 
-        const options = {
-            method: 'POST',
-            url: 'https://chatgpt-openai1.p.rapidapi.com/ask',
-            headers: {
-                'content-type': 'application/json',
-                'X-RapidAPI-Key': '08d5a406fcmsh644b6df804621e7p13cfc5jsn51b8a83e0044',
-                'X-RapidAPI-Host': 'chatgpt-openai1.p.rapidapi.com'
-              },
-            data: {
-                query: `As a Chef, write three Asian recipes using only the ingredients mentioned. I have ` + (ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.Item_name).join(', ')) + `. Reply including raw minified array json in the end with format: [{name: 'string', ingredients: 'array', instructions: 'array'}] after a phrase capitalized "HERE IS YOUR JSON FORMAT:"`
-            }
-        };
-
         const get_recommendations = async () => {
 
-            setIngredientsWStock(await Promise.all(ingredients.map(async (ingredient) => {
+            try {
 
-                // Get History
-                const history = await FBApp.db.gets(COLLECTIONS.ingredients_history, {
-                    column: 'ItemId',
-                    comparison: '==',
-                    value: ingredient.ItemId
+                // In stock
+                const in_stock = ingredients.filter((x) => parseInt(x.quantity_left) > 0);
+
+                // Required count
+                let required_count = 0;
+
+                // Count reuqired ingredients
+                in_stock.map((x) => {
+                    x.classifications.map((y) => {
+                        const z = INGREDIENT_CLASSIFICATIONS.find(x => x.name == y);
+
+                        if (z.required) {
+                            required_count++;
+                        }
+                    });
                 });
 
-                return { ...ingredient, stock: (history.length > 0 ? history.reduce((total, current) => total + parseInt(current.item_quantity), 0) : 0) }
-            })));
+                // Check if there are required ingredients in stock
+                if (required_count == 0) {
 
-            const response = await axios.request(options);
-            setRecommendations('Possible recipes:');
-            setRecipes(JSON.parse(response.data.response.substring(response.data.response.indexOf("HERE IS YOUR JSON FORMAT:") + ("HERE IS YOUR JSON FORMAT".length + 1)).trim()));
+                    setRecommendations('Apparently, you currently have no ingredients in stock that can be considered as a main or base ingredient to create a dish.');
 
-            // Get existing
-            const existing = await FBApp.db.get(COLLECTIONS.recommendation, { column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+                    return;
+                }
 
-            // Update if existing
-            if (existing) {
-                FBApp.db.update(COLLECTIONS.recommendation, {
-                    ingredients: ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.ItemId),
-                    recipes: recipes
-                });
+                const options = {
+                    method: 'POST',
+                    url: 'https://chatgpt146.p.rapidapi.com/chat',
+                    headers: {
+                        'content-type': 'application/json',
+                        'X-RapidAPI-Key': 'afab6284a5mshae6dd43c22e53a1p14328bjsn3e3a0c4e172d',
+                        'X-RapidAPI-Host': 'chatgpt146.p.rapidapi.com'
+                    },
+                    data: {
+                        messages: [
+                          {
+                            role: 'user',
+                            content: `
+                                As a Chef, write three Asian or Filipino recipes strictly, remember strictly using only the ingredients mentioned and please do not add ingredient not specified below:
+                                ` + (in_stock.map(x => (`- ${ x.Item_name }, can be used as ${ (x.classifications.join(', ')) }`))) + `
+                                Reply including raw minified array json in the end with format: [{name: 'string', ingredients: 'array', instructions: 'array'}] after a phrase capitalized "HERE IS YOUR JSON FORMAT:"
+                            `
+                          }
+                        ],
+                        temperature: 0.8
+                    }
+                };
+
+                // Get response
+                const response = await axios.request(options);
+
+                // Retreive json
+                const json_string = response.data.content.substring(response.data.content.indexOf("HERE IS YOUR JSON FORMAT:") + ("HERE IS YOUR JSON FORMAT".length + 1));
+
+                // Minify
+                const minified_json = json_string.replace(/\n+/g, ' ').trim();
+
+                console.log(options.data.query);console.log(response.data.content);console.log(json_string);console.log(minified_json);
+
+                // Set recommendation
+                setRecommendations('Possible recipes:');
+                setRecipes(JSON.parse(JSON.parse(minified_json)));
+
+                // Get existing
+                const existing = await FBApp.db.get(COLLECTIONS.recommendation, { column: 'Restaurant_id', comparison: '==', value: profile.adminId });
+
+                // Update if existing
+                if (existing) {
+                    FBApp.db.update(COLLECTIONS.recommendation, {
+                        ingredients: ingredients.filter((x) => parseInt(x.quantity_left) > 0).map((x) => x.ItemId),
+                        recipes: recipes
+                    });
+                }
+                // Save
+                else {
+                    FBApp.db.insert(COLLECTIONS.recommendation, {
+                        Restaurant_id: profile.adminId,
+                        ingredients: ingredients.filter((x) => parseInt(x.quantity_left) > 0).map((x) => x.ItemId),
+                        recipes: recipes
+                    });
+                }
             }
-            // Save
-            else {
-                FBApp.db.insert(COLLECTIONS.recommendation, {
-                    Restaurant_id: profile.adminId,
-                    ingredients: ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.ItemId),
-                    recipes: recipes
-                });
+            catch (error) {console.log(error);
+                setRecommendations('WasteNot cannot recommend for now. Please try again later');
             }
         }
 
@@ -106,7 +146,7 @@ const Recommendation = () => {
         // Get recommendation
         if (!recommendation.isLoading) {
             // There are recipes and recipes in inventory matches the ingredients for the recipe, if not get new set of recipes
-            if (recommendation.recommendation.recipes && JSON.stringify(recommendation.recommendation.ingredients) == JSON.stringify(ingredientsWStock.filter((x) => x.stock > 0).map((x) => x.ItemId))) {
+            if (recommendation.recommendation.recipes && JSON.stringify(recommendation.recommendation.ingredients) == JSON.stringify(ingredients.filter((x) => parseInt(x.quantity_left) > 0).map((x) => x.ItemId))) {
                 setRecipes(recommendation.recommendation.recipes);
             }
             else {

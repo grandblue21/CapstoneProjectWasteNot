@@ -41,4 +41,39 @@ const MENU_CATEGORIES = [
      'Salads'
 ]
 
-export { COLLECTIONS, ROLES, CATEGORIES, MENU_CATEGORIES };
+const INGREDIENT_CLASSIFICATIONS = [
+    {
+        name: 'Main Ingredient',
+        required: true
+    },
+    {
+        name: 'Base Ingredient',
+        required: true
+    },
+    {
+        name: 'Secondary Ingredient',
+        required: false
+    },
+    {
+        name: 'Seasonings',
+        required: false
+    },
+    {
+        name: 'Accompaniments',
+        required: false
+    },
+    {
+        name: 'Binding Agents',
+        required: false
+    },
+    {
+        name: 'Aromatics',
+        required: false
+    },
+    {
+        name: 'Fats',
+        required: false
+    }
+]
+
+export { COLLECTIONS, ROLES, CATEGORIES, MENU_CATEGORIES, INGREDIENT_CLASSIFICATIONS };
